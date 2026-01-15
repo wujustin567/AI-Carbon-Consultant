@@ -4,7 +4,7 @@
 透過分析各產業的能源痛點，系統能自動生成精準、具成本效益的 1% 減碳路徑建議。
 
 ## 🚀 立即體驗 (Live Demo)
-> **[👉 點此開啟 AI 減碳顧問網頁](https://script.google.com/macros/s/AKfycbzHt0j4_BfsOhR8KFJ3oCZIvCy9qZGHXhev_KXYmmUB-xnj_x6tgEErnQIE7chrytod/exec)**
+> **[👉 點此開啟 AI 減碳顧問網頁](https://script.google.com/a/macros/netellus.com/s/AKfycbzHt0j4_BfsOhR8KFJ3oCZIvCy9qZGHXhev_KXYmmUB-xnj_x6tgEErnQIE7chrytod/exec)**
 
 ---
 
