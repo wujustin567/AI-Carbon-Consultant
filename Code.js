@@ -1,351 +1,396 @@
 /**
- * Netellus Backend - Complete Logic Refactor
- * Target: Google Apps Script + Firebase Firestore
- * Features: Smart Recommendations (Single/Portfolio), Cached Analytics
+ * Netellus Backend (Firestore REST Version - ES5 Safe)
+ * 
+ * Project ID: netellus-solutionprovider
+ * Collections: 'Case' (Read), 'user_leads' (Write)
+ * Authentication: Web API Key (REST)
  */
-// ================= CONFIGURATION =================
+
 var PROJECT_ID = "netellus-solutionprovider";
 var PROPS = PropertiesService.getScriptProperties();
-// 【資安重要】API Key 統一由 Script Properties 讀取，請務必在 GAS 專案設定中設定
 var FIREBASE_API_KEY = PROPS.getProperty('FIREBASE_API_KEY');
 var GEMINI_API_KEY = PROPS.getProperty('GEMINI_API_KEY');
-// 欄位名稱映射
-var KEYS = {
-    INDUSTRY: "案例公司產業別",
-    SYSTEM: "系統名稱",
-    ACTION_TYPE: "措施類型",
-    ACTION_NAME: "措施名稱",
-    CARBON: "碳減量(公噸/年)",
-    ENERGY: "節能潛力",
-    COST: "企業投資成本(萬元)",
-    SAVING: "年節省成本(萬元)",
-    PAYBACK: "回收年限(年)",
-    UNIT_COST: "單位減碳成本(元/噸)",
-    PROB: "企業問題闡述",
-    SOL: "解決方案闡述"
-};
-// ================= ENTRY POINTS =================
-/**
- * 處理網頁存取 (doGet)
- * 用於讀取名為 'index' 的 HTML 檔案並渲染為 Web App
- */
+
+// === TEST FUNCTION - Run this manually in GAS editor ===
+function testFirestoreConnection() {
+    Logger.log("=== Testing Firestore Connection ===");
+    Logger.log("Project ID: " + PROJECT_ID);
+    Logger.log("API Key (first 20 chars): " + FIREBASE_API_KEY.substring(0, 20) + "...");
+
+    try {
+        var results = getIndustryStats("教育業");
+        Logger.log("SUCCESS! Fetched " + results.length + " documents");
+
+        if (results.length > 0) {
+            Logger.log("First document:");
+            Logger.log(JSON.stringify(results[0], null, 2));
+        } else {
+            Logger.log("WARNING: No documents found for 教育業");
+        }
+    } catch (e) {
+        Logger.log("ERROR: " + e.message);
+        Logger.log("Stack: " + e.stack);
+    }
+}
+
+// --- Entry Points ---
 function doGet(e) {
+    if (e && e.parameter && e.parameter.action === 'sync') {
+        try {
+            syncFirebaseLeadsToSheet();
+            return ContentService.createTextOutput(JSON.stringify({ success: true, message: "Sync triggered" })).setMimeType(ContentService.MimeType.JSON);
+        } catch (err) {
+            return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.message })).setMimeType(ContentService.MimeType.JSON);
+        }
+    }
+
+    // Default: Serve index.html
     return HtmlService.createHtmlOutputFromFile('index')
-        .setTitle('Netellus Solution Provider')
+        .setTitle('Netellus - 企業減碳決策支援系統')
         .addMetaTag('viewport', 'width=device-width, initial-scale=1')
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
-/**
- * 處理資料請求 (doPost)
- * 接受 JSON 格式的 action 指令
- */
+
 function doPost(e) {
     try {
         var data = JSON.parse(e.postData.contents);
         var action = data.action;
+
         var result;
-        if (action === 'saveUserProfile') {
+        if (action === 'getIndustryStats') {
+            result = getIndustryStats(data.industry);
+        } else if (action === 'getRecommendations') {
+            result = getRecommendations(data.industry, data.goal, data.goalPath);
+        } else if (action === 'saveUserProfile') {
             result = saveUserLead(data.userData);
-        }
-        else if (action === 'getRecommendations') {
-            result = getSmartRecommendations(data.industry, data.absoluteGoal, data.goalPath);
-        }
-        else if (action === 'getGeminiAnalysis') {
-            if (data.type === 'portfolio') {
-                result = callGeminiForPortfolio(data.industry, data.goal, data.items);
-            } else {
-                result = callGeminiForCases(data.industry, data.goal, data.items);
-            }
-        }
-        else if (action === 'getDashboardStats') {
-            result = getDashboardStats(data.industry, data.system, data.actionType);
-        }
-        else if (action === 'getIndustryStats') {
-            result = queryFirestore("Case", KEYS.INDUSTRY, data.industry);
-        }
-        else if (action === 'getAiSummary') {
-            result = callGeminiCollectiveAggregation(data.textData);
-        }
-        else if (action === 'getScopedSummary') {
-            result = getScopedSummary(data.industry, data.system, data.actionType);
-        }
-        else {
+        } else {
             throw new Error("Unknown action: " + action);
         }
-        return ContentService.createTextOutput(JSON.stringify({ success: true, data: result }))
-            .setMimeType(ContentService.MimeType.JSON);
+
+        return ContentService.createTextOutput(JSON.stringify({ success: true, data: result })).setMimeType(ContentService.MimeType.JSON);
+
     } catch (error) {
-        return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message }))
-            .setMimeType(ContentService.MimeType.JSON);
+        return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message, stack: error.stack })).setMimeType(ContentService.MimeType.JSON);
     }
 }
-// ================= SMART RECOMMENDATION LOGIC =================
-function getSmartRecommendations(industry, absoluteGoal, goalPath) {
-    var target = Number(absoluteGoal) || 0;
-    var cleanIndustry = industry.trim();
-    var candidates = [];
-    var searchMethod = "";
-    try {
-        candidates = queryFirestore("Case", "案例公司產業別", cleanIndustry);
-        if (candidates.length > 0) {
-            searchMethod = "Exact Match";
-        }
-    } catch (e) {}
-    if (candidates.length === 0) {
-        searchMethod = "Fuzzy Match";
-        var prefix = cleanIndustry.length >= 2 ? cleanIndustry.substring(0, 2) : cleanIndustry;
-        candidates = queryFirestorePrefix("Case", "案例公司產業別", prefix, 30);
-        candidates = candidates.filter(function (c) {
-            var dbInd = (c['案例公司產業別'] || "").toString().trim();
-            return dbInd.indexOf(cleanIndustry) !== -1 || cleanIndustry.indexOf(dbInd) !== -1;
-        });
-    }
-    if (candidates.length === 0) {
-        return { type: 'none', message: "查無結果，請確認產業名稱。" };
-    }
-    var scoredCases = candidates.map(function (c) {
-        var caseVal = 0;
-        if (goalPath === 'energy') {
-            var rawEnergy = c['節能潛力'] || 0;
-            caseVal = Number(rawEnergy) * 1000;
-        } else {
-            var rawCarbon = c['碳減量(公噸/年)'] || 0;
-            caseVal = Number(rawCarbon);
-        }
-        c._diff = Math.abs(caseVal - target);
-        c._val = caseVal;
-        return c;
-    });
-    var uniqueCases = [];
-    var seenKeys = {};
-    scoredCases.sort(function (a, b) { return a._diff - b._diff; });
-    for (var i = 0; i < scoredCases.length; i++) {
-        var c = scoredCases[i];
-        var uniqueKey = (c['系統名稱'] || "") + "_" + (c['措施類型'] || "") + "_" + c._val;
-        if (!seenKeys[uniqueKey]) {
-            seenKeys[uniqueKey] = true;
-            uniqueCases.push(c);
-        }
-        if (uniqueCases.length >= 3) break;
-    }
-    var analysisText = "";
-    if (uniqueCases.length > 0) {
-        var topSystem = uniqueCases[0]['系統名稱'] || "關鍵耗能設備";
-        var topAction = uniqueCases[0]['措施類型'] || "能效優化";
-        analysisText = "根據 " + cleanIndustry + " 的數據分析，貴產業目前在「" + topSystem + "」與「" + topAction + "」上具有最高的減碳投資效益。建議優先評估此單元。";
-    }
-    return {
-        type: 'single',
-        items: uniqueCases,
-        targetGap: (target - (uniqueCases[0] ? uniqueCases[0]._val : 0)) > 0 ? (target - (uniqueCases[0] ? uniqueCases[0]._val : 0)) : 0,
-        analysis: analysisText
-    };
-}
-// ================= DASHBOARD STATS LOGIC =================
-function getDashboardStats(industry, system, actionType) {
-    var collection = "industry_analytics_v2";
-    var results = {};
-    if (!system) {
-        results.rawDocs = queryFirestore(collection, "industry", industry, 1000);
-    }
-    else if (system && !actionType) {
-        var docs = queryFirestore(collection, "system", system, 100);
-        var targetDoc = docs.filter(function (d) { return d.industry === industry; })[0];
-        if (targetDoc && targetDoc.stats) {
-            results.actionDistribution = cleanStatsKeys(targetDoc.stats, "b_");
-        }
-    }
-    else if (system && actionType) {
-        var docId = (industry + "_" + system + "_" + actionType).replace(/\//g, "-");
-        var doc = getFirestoreDoc(collection, docId);
-        if (doc && doc.stats) {
-            results.medians = cleanStatsKeys(doc.stats, "c_");
-        }
-    }
-    return results;
-}
-function cleanStatsKeys(statsObj, prefix) {
-    var clean = {};
-    for (var key in statsObj) {
-        if (key.indexOf(prefix) === 0) {
-            clean[key] = statsObj[key];
-        }
-    }
-    return clean;
-}
-// ================= FIREBASE FIREWORE CORE =================
-function getFirestoreDoc(collection, docId) {
-    var url = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents/" + collection + "/" + encodeURIComponent(docId) + "?key=" + FIREBASE_API_KEY;
-    try {
-        var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
-        if (res.getResponseCode() === 200) {
-            return parseFirestoreDoc(JSON.parse(res.getContentText()));
-        }
-    } catch (e) {}
-    return null;
-}
-function queryFirestore(collection, field, value, limit) {
+
+// --- Firestore Logic (REST) ---
+
+function getIndustryStats(industry) {
     var url = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents:runQuery?key=" + FIREBASE_API_KEY;
-    var quotedField = "`" + field + "`";
+
     var structuredQuery = {
-        from: [{ collectionId: collection }],
-        where: {
+        from: [{ collectionId: "Case" }]
+    };
+
+    if (industry) {
+        structuredQuery.where = {
             fieldFilter: {
-                field: { fieldPath: quotedField },
+                field: { fieldPath: "`案例公司產業別`" },
                 op: "EQUAL",
-                value: { stringValue: value }
+                value: { stringValue: industry }
             }
-        },
-        limit: limit || 50
-    };
+        };
+    } else {
+        structuredQuery.limit = 500;
+    }
+
+    var payload = { structuredQuery: structuredQuery };
+
+    Logger.log("Querying Firestore...");
+    Logger.log("URL: " + url.substring(0, 100) + "...");
+
     var response = UrlFetchApp.fetch(url, {
         method: 'post',
         contentType: 'application/json',
-        payload: JSON.stringify({ structuredQuery: structuredQuery }),
+        payload: JSON.stringify(payload),
         muteHttpExceptions: true
     });
-    if (response.getResponseCode() !== 200) return [];
+
+    Logger.log("Response Code: " + response.getResponseCode());
+
+    if (response.getResponseCode() !== 200) {
+        var errorText = response.getContentText();
+        Logger.log("Error Response: " + errorText);
+        throw new Error("Firestore Read Error: " + errorText);
+    }
+
     var json = JSON.parse(response.getContentText());
+    if (!json || !json.length) {
+        Logger.log("No documents returned");
+        return [];
+    }
+
     var results = [];
-    if (json && json.length) {
-        for (var i = 0; i < json.length; i++) {
-            if (json[i].document) results.push(parseFirestoreDoc(json[i].document));
+    for (var i = 0; i < json.length; i++) {
+        if (json[i].document) {
+            results.push(parseFirestoreDoc(json[i].document));
         }
     }
+
+    Logger.log("Fetched " + results.length + " documents");
+
     return results;
 }
-function queryFirestorePrefix(collection, field, prefix, limit) {
-    var url = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents:runQuery?key=" + FIREBASE_API_KEY;
-    var quotedField = "`" + field + "`";
-    var structuredQuery = {
-        from: [{ collectionId: collection }],
-        where: {
-            compositeFilter: {
-                op: "AND",
-                filters: [
-                    { fieldFilter: { field: { fieldPath: quotedField }, op: "GREATER_THAN_OR_EQUAL", value: { stringValue: prefix } } },
-                    { fieldFilter: { field: { fieldPath: quotedField }, op: "LESS_THAN", value: { stringValue: prefix + "\uf8ff" } } }
-                ]
-            }
-        },
-        limit: limit || 30
-    };
-    var response = UrlFetchApp.fetch(url, {
-        method: 'post',
-        contentType: 'application/json',
-        payload: JSON.stringify({ structuredQuery: structuredQuery }),
-        muteHttpExceptions: true
-    });
-    if (response.getResponseCode() !== 200) return [];
-    var json = JSON.parse(response.getContentText());
-    var results = [];
-    if (json && json.length) {
-        for (var i = 0; i < json.length; i++) {
-            if (json[i].document) results.push(parseFirestoreDoc(json[i].document));
-        }
-    }
-    return results;
-}
+
 function saveUserLead(userData) {
     var url = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents/user_leads?key=" + FIREBASE_API_KEY;
-    var fields = { "createdAt": { timestampValue: new Date().toISOString() } };
+
+    var fields = {};
+    fields["createdAt"] = { timestampValue: new Date().toISOString() };
+
     for (var key in userData) {
-        fields[key] = { stringValue: String(userData[key]) };
+        if (userData.hasOwnProperty(key)) {
+            fields[key] = { stringValue: String(userData[key]) };
+        }
     }
-    UrlFetchApp.fetch(url, {
+
+    var payload = { fields: fields };
+
+    var response = UrlFetchApp.fetch(url, {
         method: 'post',
         contentType: 'application/json',
-        payload: JSON.stringify({ fields: fields }),
+        payload: JSON.stringify(payload),
         muteHttpExceptions: true
     });
-    return { status: "success" };
+
+    if (response.getResponseCode() !== 200) throw new Error("Firestore Write Error: " + response.getContentText());
+
+    var json = JSON.parse(response.getContentText());
+    return { status: "created", id: json.name };
 }
+
 function parseFirestoreDoc(doc) {
     var fields = doc.fields;
     var obj = {};
-    if (!fields) return obj;
+
     for (var key in fields) {
         var val = fields[key];
         if (val.stringValue) obj[key] = val.stringValue;
         else if (val.integerValue) obj[key] = Number(val.integerValue);
         else if (val.doubleValue) obj[key] = Number(val.doubleValue);
         else if (val.booleanValue) obj[key] = val.booleanValue;
-        else if (val.mapValue) obj[key] = parseFirestoreMap(val.mapValue.fields);
     }
     return obj;
 }
-function parseFirestoreMap(fields) {
-    var obj = {};
-    for (var key in fields) {
-        var val = fields[key];
-        if (val.doubleValue !== undefined) obj[key] = Number(val.doubleValue);
-        else if (val.integerValue !== undefined) obj[key] = Number(val.integerValue);
-        else if (val.stringValue) obj[key] = val.stringValue;
+
+// --- Business Logic ---
+
+function getRecommendations(industry, goalValue, goalPath) {
+    var allCases = getIndustryStats(industry);
+    var targetField = goalPath === 'energy' ? '節能潛力' : '碳減量(公噸/年)';
+
+    if (allCases.length === 0) return { type: 'none', items: [], aiAnalysis: "No data found." };
+
+    var validCases = [];
+    for (var i = 0; i < allCases.length; i++) {
+        var c = allCases[i];
+        c[targetField] = Number(c[targetField] || 0);
+
+        if (c[targetField] > 0) {
+            c._val = c[targetField];
+            validCases.push(c);
+        }
     }
-    return obj;
-}
-// ================= AI GENERATION (GEMINI) =================
-function callGeminiForCases(industry, goal, items) {
-    if (!GEMINI_API_KEY) return "API Key 未設定";
-    if (!items || items.length === 0) return "無相關數據可分析";
-    var topItem = items[0];
-    var prompt = "角色：精準犀利的產業減碳顧問。\n" +
-        "產業：" + industry + "\n" +
-        "推薦方案：" + topItem[KEYS.SYSTEM] + " (" + topItem[KEYS.ACTION_TYPE] + ")\n" +
-        "痛點參考：" + (topItem[KEYS.PROB] || "設備老舊效率不彰") + "\n" +
-        "解決方案：" + (topItem[KEYS.SOL] || "導入高效率變頻技術") + "\n\n" +
-        "任務：請針對上述推薦方案，寫一段 150字以內 的專業短評。\n" +
-        "直接告訴業主為什麼這是該產業最該優先執行的項目？它的核心效益是什麼？\n\n" +
-        "規定：不要寫信件開頭，不要列點，用流暢短文，語氣專業且篤定。";
-    return callGeminiAPI(prompt);
-}
-function callGeminiForPortfolio(industry, goal, items) {
-    if (!GEMINI_API_KEY) return "AI 組合完成，但 Gemini API 未設定。";
-    var prompt = "角色：產業減碳顧問。產業：" + industry + "。目標：" + goal + " (組合策略)。\n" +
-        "建議採用以下多重措施組合：\n";
-    items.forEach(function (c) {
-        prompt += "- " + c[KEYS.SYSTEM] + " (" + c[KEYS.ACTION_TYPE] + ")\n";
+
+    validCases.sort(function (a, b) {
+        return Math.abs(a._val - goalValue) - Math.abs(b._val - goalValue);
     });
-    prompt += "\n請說明此組合對達成大型減量目標的必要性與加乘效果。";
-    return callGeminiAPI(prompt);
+
+    var bestCase = validCases[0] || allCases[0];
+    var resultType = 'single';
+    var selectedItems = [];
+
+    if (goalValue > (bestCase._val * 5)) {
+        resultType = 'combo';
+
+        var systemsKey = {};
+        for (var j = 0; j < validCases.length; j++) { systemsKey[validCases[j]["系統名稱"]] = true; }
+        var systems = Object.keys(systemsKey);
+
+        var currentSum = 0;
+        var sortedByVal = validCases.slice().sort(function (a, b) { return b._val - a._val; });
+
+        for (var k = 0; k < systems.length; k++) {
+            var sys = systems[k];
+            if (currentSum >= goalValue) break;
+
+            var pick = null;
+            for (var m = 0; m < sortedByVal.length; m++) {
+                if (sortedByVal[m]["系統名稱"] === sys) {
+                    pick = sortedByVal[m];
+                    break;
+                }
+            }
+            if (pick) {
+                selectedItems.push(pick);
+                currentSum += pick._val;
+            }
+        }
+        if (selectedItems.length === 0) selectedItems.push(bestCase);
+    } else {
+        selectedItems.push(bestCase);
+        var alts = validCases.filter(function (c) { return c["措施類型"] !== bestCase["措施類型"]; }).slice(0, 2);
+        for (var n = 0; n < alts.length; n++) selectedItems.push(alts[n]);
+    }
+
+    var enhanced = enhanceRecommendationsWithAI(selectedItems, industry);
+    var aiAnalysis = callGemini(industry, goalValue, goalPath, enhanced);
+
+    return { type: resultType, items: enhanced, targetGap: goalValue, aiAnalysis: aiAnalysis };
 }
-function callGeminiCollectiveAggregation(items) {
-    if (!GEMINI_API_KEY || items.length === 0) return "AI 顧問正在分析中...";
-    var combinedText = items.slice(0, 10).map(function (c) {
-        return "問題: " + (c[KEYS.PROB] || "無") + " | 方案: " + (c[KEYS.SOL] || "無");
+
+// --- AI Logic ---
+
+function enhanceRecommendationsWithAI(items, industry) {
+    if (!GEMINI_API_KEY || items.length === 0) return items;
+
+    var casesText = items.map(function (c, i) {
+        return "Case " + i + ": Prob:" + (c["企業問題闡述"] || "") + ", Sol:" + (c["解決方案闡述"] || "");
     }).join("\n");
-    var prompt = "請總結以下產業案例的核心痛點與建議：\n" + combinedText;
+
+    var prompt = "Role: Consultant for " + industry + ". Task: Summarize Pain Points/Solutions. Input:\n" + casesText + "\nOutput JSON Array [{ \"ai_pain_point\": \"...\", \"ai_solution\": \"...\" }]. JSON ONLY.";
+
+    try {
+        var resContent = callGeminiAPI(prompt);
+        var cleanJson = resContent.replace(/```json|```/g, '').trim();
+        var json = JSON.parse(cleanJson);
+
+        return items.map(function (item, i) {
+            if (json[i]) {
+                item.ai_pain_point = json[i].ai_pain_point;
+                item.ai_solution = json[i].ai_solution;
+            }
+            return item;
+        });
+    } catch (e) { return items; }
+}
+
+function callGemini(industry, goal, path, items) {
+    if (!GEMINI_API_KEY) return "Gemini Key Not Set";
+
+    var itemsText = items.map(function (c) { return "- " + c["系統名稱"] + ": " + c["措施名稱"]; }).join("\n");
+    var prompt = "Industry:" + industry + ", Goal:" + goal + ". Logic Reference:\n" + itemsText + "\nWrite strategy report (Markdown, Traditional Chinese).";
     return callGeminiAPI(prompt);
 }
-function getScopedSummary(industry, system, actionType) {
-    var allCases = queryFirestore("Case", KEYS.INDUSTRY, industry);
-    var filtered = allCases.filter(function (c) {
-        var sMatch = c[KEYS.SYSTEM] === system;
-        var tMatch = (c[KEYS.ACTION_TYPE] || "").indexOf(actionType) !== -1;
-        return sMatch && (actionType === '其他' ? true : tMatch);
-    });
-    if (filtered.length === 0) return "尚無相關案例可供分析。";
-    return callGeminiCollectiveAggregation(filtered);
-}
+
 function callGeminiAPI(prompt) {
-    if (!GEMINI_API_KEY) return "系統錯誤：API Key 未設定。";
-    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + GEMINI_API_KEY;
+    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY;
+    var payload = { contents: [{ parts: [{ text: prompt }] }] };
+
     try {
         var res = UrlFetchApp.fetch(url, {
             method: 'post',
             contentType: 'application/json',
-            payload: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+            payload: JSON.stringify(payload),
             muteHttpExceptions: true
         });
-        var responseCode = res.getResponseCode();
-        var responseBody = res.getContentText();
-        if (responseCode !== 200) return "API Error: " + responseCode;
-        var json = JSON.parse(responseBody);
-        if (json.candidates && json.candidates[0].content) {
+        var json = JSON.parse(res.getContentText());
+        if (json.candidates && json.candidates[0]) {
             return json.candidates[0].content.parts[0].text;
         }
-        return "AI 分析完成，但無內容回傳。";
-    } catch (e) {
-        return "程式錯誤：" + e.toString();
+        return "AI Error or Default Answer";
+    } catch (e) { return "AI Network Error"; }
+}
+
+// --- Firebase to Sheet Sync ---
+
+function syncFirebaseLeadsToSheet() {
+    var SPREADSHEET_ID = "1VNlpCCe1Hl2kmVrPDA3JAw4-sJHOWrsIsbH70xgSejU";
+    var FIREBASE_API_KEY = PropertiesService.getScriptProperties().getProperty('FIREBASE_API_KEY');
+    var baseUrl = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents/user_leads?key=" + FIREBASE_API_KEY;
+
+    Logger.log("Fetching documents from Firestore...");
+    var allDocs = [];
+    var pageToken = "";
+
+    do {
+        var url = baseUrl + (pageToken ? "&pageToken=" + pageToken : "");
+        var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+        if (response.getResponseCode() !== 200) {
+            throw new Error("Firestore Read Error: " + response.getContentText());
+        }
+        var json = JSON.parse(response.getContentText());
+        if (json.documents) {
+            allDocs = allDocs.concat(json.documents);
+        }
+        pageToken = json.nextPageToken;
+    } while (pageToken);
+
+    if (allDocs.length === 0) {
+        Logger.log("No data found in Firestore.");
+        return;
     }
+
+    // Merge data by docId
+    var mergedLeads = {};
+    for (var i = 0; i < allDocs.length; i++) {
+        var entry = parseFirestoreDoc(allDocs[i]);
+        var docId = entry.docId;
+        if (!docId) continue;
+
+        if (!mergedLeads[docId]) {
+            mergedLeads[docId] = {};
+        }
+
+        // Populate fields, newer fields overwrite older ones except createdAt
+        for (var field in entry) {
+            if (field === "createdAt" && mergedLeads[docId].createdAt) continue;
+            mergedLeads[docId][field] = entry[field];
+        }
+    }
+
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheets()[0];
+    var sheetData = sheet.getDataRange().getValues();
+
+    // Map docId to row index (1-indexed)
+    var docIdMap = {};
+    for (var i = 1; i < sheetData.length; i++) {
+        var dId = sheetData[i][2]; // Column C: docId
+        if (dId) docIdMap[dId] = i + 1;
+    }
+
+    function parseTimestamp(ts) {
+        if (!ts) return null;
+        if (typeof ts === 'string') return new Date(ts);
+        if (ts.seconds) return new Date(ts.seconds * 1000);
+        return ts;
+    }
+
+    function parseNumber(val) {
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') {
+            var n = parseFloat(val.replace(/,/g, ''));
+            return isNaN(n) ? val : n;
+        }
+        return val;
+    }
+
+    for (var docId in mergedLeads) {
+        var lead = mergedLeads[docId];
+        var rowData = [
+            parseTimestamp(lead.createdAt),       // A: 建立時間
+            parseTimestamp(lead.lastUpdated),     // B: 最後更新
+            lead.docId,                          // C: docId
+            lead.industry,                       // D: 產業
+            lead.phone,                          // E: 電話
+            lead.taxId,                          // F: 統編
+            parseNumber(lead.baseline_total),    // G: 基準總量
+            lead.baseline_unit,                  // H: 單位
+            parseNumber(lead.reduction_target),  // I: 減量目標
+            lead.reduction_type,                 // J: 目標類型
+            lead.email                           // K: Email
+        ];
+
+        if (docIdMap[docId]) {
+            sheet.getRange(docIdMap[docId], 1, 1, rowData.length).setValues([rowData]);
+            Logger.log("Updated docId: " + docId);
+        } else {
+            sheet.appendRow(rowData);
+            Logger.log("Appended docId: " + docId);
+        }
+    }
+
+    Logger.log("Sync completed.");
 }
