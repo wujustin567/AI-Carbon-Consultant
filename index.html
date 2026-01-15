@@ -5,37 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Netellus - 企業減碳決策支援系統</title>
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-
-    <!-- External CDNs -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Prop-Types is required by Recharts UMD build and fixes the 'oneOfType' error -->
     <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
     <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#064E3B',
-                        accent: '#34FF5B',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    colors: { primary: '#064E3B', accent: '#34FF5B' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
     </script>
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -47,18 +35,22 @@
             position: fixed;
             inset: 0;
             z-index: -1;
-            background: radial-gradient(circle at 0% 0%, #10B981 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, #34FF5B 0%, transparent 50%),
-                #F8FAFC;
-            opacity: 0.15;
+            background-image: url("https://lh3.googleusercontent.com/d/1_sdV_LNWBQ5_DDa4V-uvYUpkADQhcOuI");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 1;
         }
 
         .netellus-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
             border: 1px solid white;
             border-radius: 40px;
             box-shadow: 0 25px 50px -12px rgba(203, 213, 225, 0.5);
+            transform: scale(0.9);
+            transform-origin: top center;
         }
 
         input:focus {
@@ -99,742 +91,680 @@
         .animate-in {
             animation: slideInUp 0.5s ease-out forwards;
         }
+
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+
+        .pill-border {
+            border: 1px solid #5C615D;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+            }
+
+            .app-bg,
+            .no-print,
+            button,
+            .back-button {
+                display: none !important;
+            }
+
+            .netellus-card {
+                transform: scale(1) !important;
+                box-shadow: none !important;
+                border: none !important;
+                background: white !important;
+                width: 100% !important;
+                max-width: none !important;
+                position: static !important;
+            }
+
+            .print-page-break {
+                page-break-before: always;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .mobile-fab {
+                width: 45px !important;
+                height: 45px !important;
+                bottom: 15px !important;
+                left: 15px !important;
+                right: auto !important;
+            }
+
+            .mobile-fab a {
+                width: 45px !important;
+                height: 45px !important;
+            }
+
+            .mobile-fab span {
+                font-size: 1.25rem !important;
+            }
+
+            .privacy-modal-content {
+                width: 90% !important;
+                max-width: none !important;
+            }
+
+            h2 {
+                font-size: 1.25rem !important;
+            }
+
+            h3 {
+                font-size: 1.1rem !important;
+            }
+
+            .integrated-report-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .integrated-report-card {
+                width: 100% !important;
+            }
+
+            .onboarding-text {
+                text-align: center !important;
+            }
+        }
+
+        .disclaimer-text {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.4;
+            margin-top: 8px;
+        }
+
+        .cost-asterisk {
+            font-size: 0.6em;
+            color: #cbd5e1;
+            margin-left: 2px;
+            cursor: help;
+        }
+
+        .custom-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 12px;
+            width: 220px;
+            padding: 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            line-height: 1.5;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1100;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .group:hover .custom-tooltip {
+            opacity: 1;
+        }
+
+        .tooltip-arrow {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+        }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden smooth-scroll">
     <div id="root"></div>
-
     <script type="text/babel">
-        const { useState, useEffect, useMemo, useRef } = React;
-        const {
-            PieChart, Pie, Cell, ResponsiveContainer, Tooltip
-        } = Recharts;
+            (() => {
+                const { useState, useEffect, useMemo, useRef } = React;
+                const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } = Recharts;
 
-        // --- Configuration ---
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzFq48s8By-nV9hbY9CetGeza3OjzJ5uHLLKrvhS6AYhplYk47rBrfVEsBDlYpWDz32/exec";
+                const STEP_INITIAL = 1;
+                const STEP_GOAL_SETTING = 2;
+                const STEP_DASHBOARD = 3;
+                const STEP_FULL_REPORT = 4;
+                const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzFq48s8By-nV9hbY9CetGeza3OjzJ5uHLLKrvhS6AYhplYk47rBrfVEsBDlYpWDz32/exec";
 
-        const INDUSTRIES = [
-            "電子零組件製造業", "電腦、電子產品及光學製品製造業", "電力設備及配備製造業",
-            "機械設備製造業", "金屬製品製造業", "基本金屬製造業", "化學材料及肥料製造業",
-            "其他化學製品製造業", "藥品及醫用化學製品製造業", "塑膠製品製造業",
-            "橡膠製品製造業", "非金屬礦物製品製造業", "石油及煤製品製造業",
-            "紡織業", "成衣及服飾品製造業", "皮革、毛皮及其製品製造業",
-            "食品及飼品製造業", "飲料製造業", "菸草製造業", "紙漿、紙及紙製品製造業",
-            "印刷及資料儲存媒體複製業", "木竹製品製造業", "家具製造業",
-            "汽車及其零件製造業", "其他運輸工具及其零件製造業", "產業用機械設備維修及安裝業",
-            "其他製造業", "製造業", "批發及零售業", "運輸及倉儲業", "住宿及餐飲業",
-            "出版影音及資通訊業", "金融及保險業", "不動產業", "專業、科學及技術服務業",
-            "支援服務業", "公共行政及國防；強制性社會安全", "教育業",
-            "醫療保健及社會工作服務業", "藝術、娛樂及休閒服務業", "其他服務業",
-            "營建工程業", "用水供應及污染整治業", "電力及燃氣供應業",
-            "礦業及土石採取業", "農、林、漁、牧業"
-        ];
+                const INDUSTRIES = ["電子零組件製造業", "電腦、電子產品及光學製品製造業", "電力設備及配備製造業", "機械設備製造業", "金屬製品製造業", "基本金屬製造業", "化學材料及肥料製造業", "其他化學製品製造業", "藥品及醫用化學製品製造業", "塑膠製品製造業", "橡膠製品製造業", "非金屬礦物製品製造業", "石油及煤製品製造業", "紡織業", "成衣及服飾品製造業", "皮革、毛皮及其製品製造業", "食品及飼品製造業", "飲料製造業", "菸草製造業", "紙漿、紙及紙製品製造業", "印刷及資料儲存媒體複製業", "木竹製品製造業", "家具製造業", "汽車及其零件製造業", "其他運輸工具及其零件製造業", "產業用機械設備維修及安裝業", "其他製造業", "製造業", "批發及零售業", "運輸及倉儲業", "住宿及餐飲業", "出版影音及資通訊業", "金融及保險業", "不動產業", "專業、科學及技術服務業", "支援服務業", "公共行政及國防；強制性社會安全", "教育業", "醫療保健及社會工作服務業", "藝術、娛樂及休閒服務業", "其他服務業", "營建工程業", "用水供應及污染整治業", "電力及燃氣供應業", "礦業及土石採取業", "農、林、漁、牧業"];
+                const COLORS = ['#064E3B', '#10B981', '#34FF5B', '#60A5FA', '#8B5CF6', '#F59E0B', '#EC4899'];
 
-        const COLORS = ['#064E3B', '#10B981', '#34FF5B', '#60A5FA', '#8B5CF6', '#F59E0B', '#EC4899'];
+                const formatComma = (v) => v ? v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "";
+                const stripComma = (v) => v ? v.toString().replace(/,/g, "") : "";
+                const generateDocId = () => `lead_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
-        const row1Metrics = [
-            { label: "碳減量 (Carbon Red.)", key: "c_碳減量中位數", unit: "t/yr", icon: "🌱" },
-            { label: "節能潛力 (Energy Sav.)", key: "c_節能潛力中位數", unit: "kWh", icon: "⚡", multiplier: 1000 },
-            { label: "回收年限 (Payback)", key: "c_回收年限中位數", unit: "年", icon: "⏳" }
-        ];
-
-        const row2Metrics = [
-            { label: "投資成本 (Cost)", key: "c_投資成本中位數", unit: "萬元", icon: "💰" },
-            { label: "年節省 (Savings)", key: "c_年節省成本中位數", unit: "萬元/年", icon: "📉" },
-            { label: "單位成本 (Unit Cost)", key: "c_單位減碳成本中位數", unit: "元/噸", icon: "🏷️" }
-        ];
-
-        // --- API Services ---
-        const dataService = {
-            async fetchRecommendations(industry, absoluteGoal, path) {
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({
-                            action: 'getRecommendations',
-                            industry,
-                            absoluteGoal,
-                            goalPath: path
-                        })
-                    });
-                    const json = await response.json();
-                    return json.success ? { items: [], aiAnalysis: "", ...json.data } : { type: 'none', items: [], aiAnalysis: json.error || "Backend Error" };
-                } catch (e) {
-                    return { type: 'none', items: [], aiAnalysis: e.message || "Network Error" };
-                }
-            },
-            async fetchDashboardStats(params) {
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'getDashboardStats', ...params })
-                    });
-                    const json = await response.json();
-                    return json.success ? (json.data || {}) : {};
-                } catch (e) {
-                    return {};
-                }
-            },
-            async saveUserProfile(userData) {
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'saveUserProfile', userData })
-                    });
-                    return await response.json();
-                } catch (e) {
-                    throw e;
-                }
-            },
-            async fetchGeminiAnalysis(industry, goal, items, type) {
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify({ action: "getGeminiAnalysis", industry, goal, items, type }),
-                    });
-                    const json = await response.json();
-                    return json.success ? (json.data || "") : "AI 分析暫時無法取得 (Backend Error)";
-                } catch (e) {
-                    return "AI 分析連線失敗";
-                }
-            },
-            processSystemDistribution(rawDocs) {
-                const systemMap = {};
-                rawDocs.forEach(doc => {
-                    const sysName = doc.system;
-                    if (sysName && !systemMap[sysName]) {
-                        const ratio = doc.stats?.['a_系統佔比(同產業)'] || 0;
-                        systemMap[sysName] = ratio;
-                    }
-                });
-                return Object.keys(systemMap).map(sys => ({
-                    name: sys,
-                    value: Math.round(systemMap[sys] * 1000) / 10
-                }));
-            }
-        };
-
-        // --- Helper Components ---
-        const MainContainer = ({ children, className = "" }) => (
-            <div
-                className="min-h-screen flex items-center justify-center py-10 px-4 font-sans relative overflow-hidden"
-            >
-                <div className="app-bg"></div>
-                <div className={`relative z-10 w-full max-w-6xl bg-white/95 rounded-[40px] shadow-2xl overflow-hidden border border-white ${className}`}>
-                    {children}
-                </div>
-            </div>
-        );
-
-        const BackButton = ({ onClick }) => (
-            <button
-                onClick={onClick}
-                className="flex items-center gap-2 text-slate-400 hover:text-[#064E3B] font-bold text-xs uppercase tracking-widest transition-all mb-8 group"
-            >
-                <span className="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center group-hover:border-[#064E3B] transition-all">←</span>
-                返回修改
-            </button>
-        );
-
-        const formatValue = (value) => {
-            const num = Number(value);
-            if (isNaN(num) || num === 0) return "0";
-            if (Math.abs(num) >= 1000000) {
-                return new Intl.NumberFormat("en-US", {
-                    notation: "compact",
-                    compactDisplay: "short",
-                    maximumFractionDigits: 1
-                }).format(num);
-            }
-            return num.toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 1
-            });
-        };
-
-        const RecommendationCard = ({ item, index, onOpen, isEnergy, targetValue }) => {
-            const format = (v) => {
-                const n = typeof v === 'string' ? parseFloat(v.replace(/,/g, '')) : v;
-                return isNaN(n) ? "0" : n.toLocaleString('en-US', { maximumFractionDigits: 1 });
-            };
-
-            return (
-                <div className="bg-white p-6 rounded-[32px] border border-slate-100 hover:border-[#34FF5B] hover:shadow-xl transition-all group flex flex-col md:flex-row justify-between items-center animate-in" style={{ animationDelay: `${index * 100}ms` }}>
-                    <div className="flex items-center gap-6 w-full md:w-auto mb-4 md:mb-0">
-                        <div className={`w-12 h-12 rounded-2xl font-black text-xl flex items-center justify-center transition-all ${index === 0 ? 'bg-[#34FF5B] text-[#064E3B]' : 'bg-slate-50 text-slate-300 group-hover:bg-[#34FF5B] group-hover:text-[#064E3B]'}`}>
-                            {index + 1}
-                        </div>
-                        <div>
-                            <h4 className="font-black text-[#064E3B] text-xl mb-1">{item["系統名稱"]}</h4>
-                            <div className="flex items-center gap-2">
-                                <p className="text-slate-400 font-bold text-sm tracking-tight">{item["措施類型"] || item["措施名稱"]}</p>
-                                {parseFloat(item["回收年限(年)"] || "99") < 3 && (
-                                    <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-md text-[8px] font-black uppercase">ROI &lt; 3Y</span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end">
-                        <div className="text-right">
-                            <p className="text-2xl font-black text-[#111827]">
-                                {isEnergy ? format(parseFloat(item["節能潛力"] || "0") * 1000) : format(item["碳減量(公噸/年)"])}
-                                <span className="text-[10px] text-slate-400 ml-1">{isEnergy ? 'kWh' : 'tCO2e'}</span>
-                            </p>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                {(() => {
-                                    const val = isEnergy ? parseFloat(item["節能潛力"] || "0") * 1000 : parseFloat(item["碳減量(公噸/年)"] || "0");
-                                    const gap = Math.max(0, targetValue - val);
-                                    return gap <= 0 ? (
-                                        <span className="text-emerald-500">✨ 已達成/超越目標 !</span>
-                                    ) : (
-                                        <span>距離目標還差 {formatValue(gap)} {isEnergy ? 'kWh' : 't'}</span>
-                                    );
-                                })()}
-                            </p>
-                        </div>
-                        <button
-                            onClick={onOpen}
-                            className="bg-[#34FF5B] text-[#064E3B] px-6 py-3 rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-lg active:scale-95"
-                        >
-                            詳情
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        const DetailModal = ({ item, onClose, onRFQ, industry }) => {
-            const format = (v, decimals = 1) => {
-                const n = typeof v === 'string' ? parseFloat(v.replace(/,/g, '')) : v;
-                return isNaN(n) ? "0" : n.toLocaleString('en-US', { maximumFractionDigits: decimals });
-            };
-
-            return (
-                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden" onClick={onClose}>
-                    <div className="bg-white rounded-[48px] max-w-4xl w-full p-8 md:p-12 animate-in relative overflow-y-auto max-h-[95vh]" onClick={e => e.stopPropagation()}>
-                        <button onClick={onClose} className="absolute top-8 right-8 w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-800 text-2xl font-light transition-all">✕</button>
-
-                        <div className="mb-10">
-                            <span className="bg-emerald-50 text-[#064E3B] px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase mb-4 inline-block">{industry}</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-[#064E3B] leading-tight mb-2">{item["系統名稱"]}</h2>
-                            <p className="text-xl font-bold text-slate-400">{item["措施名稱"] || item["措施類型"]}</p>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-                            {[
-                                { label: '減碳效益', val: format(item["碳減量(公噸/年)"], 2), unit: 'tCO2e' },
-                                { label: '節能潛力', val: format(parseFloat(item["節能潛力"] || "0") * 1000, 0), unit: 'kWh' },
-                                { label: '回收年限', val: format(item["回收年限(年)"], 1), unit: '年' },
-                                { label: '投資成本', val: format(item["企業投資成本(萬元)"], 2), unit: '萬' },
-                                { label: '年節省', val: format(item["年節省成本(萬元)"], 2), unit: '萬' },
-                                { label: '單位成本', val: format(item["單位減碳成本(元/噸)"], 0), unit: '元/噸' },
-                            ].map((stat, i) => (
-                                <div key={i} className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{stat.label}</p>
-                                    <p className="text-3xl font-black text-[#111827]">{stat.val} <span className="text-xs text-slate-400 ml-1 font-bold">{stat.unit}</span></p>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="space-y-6 mb-12">
-                            <div className="bg-slate-50/30 p-8 rounded-[32px] border border-slate-100">
-                                <h4 className="text-sm font-black text-emerald-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    企業痛點 (Pain Points)
-                                </h4>
-                                <p className="text-slate-600 font-medium leading-relaxed">{item["企業問題闡述"] || '目前針對此系統之特定痛點資料彙整中。'}</p>
-                            </div>
-                            <div className="bg-blue-50/30 p-8 rounded-[32px] border border-blue-100">
-                                <h4 className="text-sm font-black text-blue-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    解決方案 (Solution)
-                                </h4>
-                                <p className="text-slate-600 font-medium leading-relaxed">{item["解決方案闡述"] || '針對此案之最佳化解決方案建議研擬中。'}</p>
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={onRFQ}
-                            className="w-full bg-[#34FF5B] text-[#064E3B] py-7 rounded-[32px] font-black text-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 shadow-2xl shadow-emerald-200"
-                        >
-                            即刻尋找解決方案 <span className="text-3xl">→</span>
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        // --- Main App ---
-        const App = () => {
-            const [isLoading, setIsLoading] = useState(false);
-            const [step, setStep] = useState(1);
-            const [industry, setIndustry] = useState('');
-            const [phone, setPhone] = useState('');
-            const [taxId, setTaxId] = useState('');
-            const [industrySearch, setIndustrySearch] = useState('');
-            const [showSuggestions, setShowSuggestions] = useState(false);
-            const suggestionRef = useRef(null);
-
-            const [targetVal, setTargetVal] = useState('');
-            const [userGoal, setUserGoal] = useState(null);
-            const [recommendations, setRecommendations] = useState(null);
-            const [selectedAction, setSelectedAction] = useState(null);
-            const [currentVal, setCurrentVal] = useState("");
-            const [goalMode, setGoalMode] = useState("unset");
-            const [goalPath, setGoalPath] = useState("carbon");
-            const [targetType, setTargetType] = useState("percentage");
-            const [dashboardStats, setDashboardStats] = useState(null);
-            const [systemDistribution, setSystemDistribution] = useState([]);
-            const [selectedSystem, setSelectedSystem] = useState(null);
-            const [selectedMeasure, setSelectedMeasure] = useState(null);
-            const analysisRef = useRef(null);
-
-            const isPhoneValid = phone.startsWith('09') && phone.length === 10;
-            const isTaxIdValid = taxId.length === 8;
-
-            const filteredSuggestions = useMemo(() => {
-                const s = industrySearch.toLowerCase().trim();
-                if (!s) return INDUSTRIES.slice(0, 5);
-                return INDUSTRIES.filter(i => i.toLowerCase().includes(s)).slice(0, 10);
-            }, [industrySearch]);
-
-            useEffect(() => {
-                const click = (e) => {
-                    if (suggestionRef.current && !suggestionRef.current.contains(e.target)) setShowSuggestions(false);
+                const formatValueOutput = (v) => {
+                    const n = Number(v);
+                    return isNaN(n) ? "0" : Math.round(n).toLocaleString("en-US");
                 };
-                document.addEventListener("mousedown", click);
-                return () => document.removeEventListener("mousedown", click);
-            }, []);
 
-            const handleProfileSubmit = (e) => {
-                e.preventDefault();
-                if (industry && isPhoneValid && isTaxIdValid) {
-                    setStep(2);
-                    dataService.saveUserProfile({ industry, phone, taxId }).catch(console.error);
-                }
-            };
-
-            const handleConfirmGoal = async () => {
-                setIsLoading(true);
-                const g = {
-                    path: goalPath,
-                    type: targetType,
-                    value: parseFloat(targetVal.replace(/,/g, '')) || 0,
-                    currentValue: parseFloat(currentVal.replace(/,/g, '')) || 0
+                const formatDec = (v) => {
+                    const n = Number(v);
+                    return isNaN(n) ? "0.00" : n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 };
-                setUserGoal(g);
 
-                let absoluteGoal = g.value;
-                if (g.type === 'percentage') {
-                    absoluteGoal = g.currentValue * (g.value / 100);
-                }
-
-                try {
-                    const [recs, stats] = await Promise.all([
-                        dataService.fetchRecommendations(industry, absoluteGoal, goalPath),
-                        dataService.fetchDashboardStats({ industry })
-                    ]);
-                    setRecommendations(recs);
-                    setDashboardStats(stats);
-                    if (stats.rawDocs) {
-                        setSystemDistribution(dataService.processSystemDistribution(stats.rawDocs));
+                const dataService = {
+                    async fetchRecommendations(industry, absoluteGoal, path) {
+                        try {
+                            const r = await fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getRecommendations', industry, absoluteGoal, goalPath: path }) });
+                            const j = await r.json(); return j.success ? j.data : { items: [] };
+                        } catch (e) { return { items: [] }; }
+                    },
+                    async fetchDashboardStats(params) {
+                        try {
+                            const r = await fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getDashboardStats', ...params }) });
+                            const j = await r.json(); return j.success ? j.data : {};
+                        } catch (e) { return {}; }
+                    },
+                    async saveUserProfile(userData) {
+                        const r = await fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'saveUserProfile', userData }) });
+                        const j = await r.json();
+                        if (j.success) this.triggerSync();
+                        return j;
+                    },
+                    async triggerSync() {
+                        try { fetch(GAS_API_URL + "?action=sync", { mode: 'no-cors' }); } catch (e) { }
                     }
-                    setGoalMode('has_goal');
-                    setStep(3);
-                    if (recs && recs.items && recs.items.length > 0) {
-                        dataService.fetchGeminiAnalysis(
-                            industry,
-                            g.type === 'percentage' ? g.value + "%" : g.value,
-                            recs.items,
-                            recs.type
-                        ).then(aiText => {
-                            setRecommendations(prev => prev ? ({ ...prev, analysis: aiText }) : null);
-                        });
-                    }
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    setIsLoading(false);
-                }
-            };
+                };
 
-            const handleNoGoal = async () => {
-                setIsLoading(true);
-                setGoalMode('no_goal');
-                setStep(3);
-                try {
-                    const stats = await dataService.fetchDashboardStats({ industry });
-                    setDashboardStats(stats);
-                    if (stats.rawDocs) {
-                        setSystemDistribution(dataService.processSystemDistribution(stats.rawDocs));
-                    }
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    setIsLoading(false);
-                }
-            };
-
-            const getMeasuresForSystem = (sysName) => {
-                if (!dashboardStats?.rawDocs) return [];
-                return dashboardStats.rawDocs
-                    .filter(d => d.system === sysName)
-                    .map(d => ({
-                        name: d.action,
-                        rate: d.stats?.['b_措施佔比(同產業×系統)'] || 0,
-                        fullData: d
-                    }))
-                    .sort((a, b) => b.rate - a.rate);
-            };
-
-            const handleRFQ = (row) => {
-                const u = new URLSearchParams({
-                    industry,
-                    system: row["系統名稱"] || selectedSystem || '',
-                    action: row["措施名稱"] || row["措施類型"] || selectedMeasure?.action || '',
-                    target: userGoal ? `${userGoal.value}${userGoal.type === 'percentage' ? '%' : (userGoal.path === 'carbon' ? 't' : 'kWh')}` : 'none'
-                });
-                window.location.href = `https://rfq.netellus.com/rfq/create?${u.toString()}`;
-            };
-
-            const renderMetricCard = (metric, idx) => {
-                if (!selectedMeasure?.stats) return null;
-                const rawVal = selectedMeasure.stats[metric.key];
-                let val = (rawVal !== undefined && rawVal !== null) ? Number(rawVal) : 0;
-                if (metric.multiplier) val *= metric.multiplier;
-
-                return (
-                    <div key={idx} className="bg-white/5 p-6 rounded-[32px] border border-white/10 hover:bg-white/10 transition-all group text-center flex flex-col justify-center min-h-[160px] gap-2">
-                        <div className="text-3xl mb-4 group-hover:scale-110 transition-transform">{metric.icon}</div>
-                        <div className="text-white/40 text-[9px] font-black mb-2 uppercase tracking-widest leading-tight h-6">{metric.label}</div>
-                        <div className="text-lg font-black text-[#34FF5B] break-words">
-                            {formatValue(val)}
-                            <span className="text-[10px] text-white/30 ml-1 font-bold">{metric.unit}</span>
-                        </div>
+                const MainContainer = ({ children, className = "" }) => (
+                    <div className="min-h-screen flex items-center justify-center py-6 px-4 font-sans relative overflow-hidden">
+                        <div className="app-bg"></div>
+                        <div className={`relative z-10 w-full max-w-5xl netellus-card overflow-hidden border border-white ${className}`}>{children}</div>
                     </div>
                 );
-            };
 
-            if (isLoading && step !== 3) {
-                return (
-                    <MainContainer className="max-w-md text-center py-20">
-                        <div className="w-16 h-16 border-4 border-[#064E3B] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-                        <p className="text-[#064E3B] font-bold tracking-widest uppercase animate-pulse">Analyzing...</p>
-                    </MainContainer>
+                const BackButton = ({ onClick }) => (
+                    <button onClick={onClick} className="flex items-center gap-2 text-slate-400 hover:text-[#064E3B] font-bold text-xs uppercase tracking-widest transition-all mb-8 group back-button no-print">
+                        <span className="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center group-hover:border-[#064E3B] transition-all">←</span>
+                        返回修改
+                    </button>
                 );
-            }
 
-            if (step === 1) {
-                return (
-                    <MainContainer className="max-w-lg p-10 md:p-14">
-                        <div className="text-center mb-12">
-                            <h1 className="text-3xl font-black mb-2 text-[#111827]">企業減碳決策系統</h1>
-                            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Netellus Intelligence Hub</p>
-                        </div>
-                        <form onSubmit={handleProfileSubmit} className="space-y-8">
-                            <div className="relative" ref={suggestionRef}>
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 block text-center">產業類別</label>
-                                <input
-                                    required
-                                    type="text"
-                                    value={industrySearch}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        setIndustrySearch(val);
-                                        setIndustry(val);
-                                        setShowSuggestions(true);
-                                    }}
-                                    onFocus={() => setShowSuggestions(true)}
-                                    className="w-full h-16 rounded-3xl bg-slate-50 border-2 border-slate-100 focus:border-[#34FF5B] transition-all px-8 text-xl font-bold"
-                                    placeholder="搜尋產業..."
-                                />
-                                {showSuggestions && filteredSuggestions.length > 0 && (
-                                    <div className="absolute z-50 top-full left-0 right-0 mt-2 bg-white rounded-3xl border border-slate-100 shadow-2xl overflow-hidden">
-                                        {filteredSuggestions.map((ind, i) => (
-                                            <div key={i} onMouseDown={() => { setIndustry(ind); setIndustrySearch(ind); setShowSuggestions(false); }} className="px-8 py-4 hover:bg-emerald-50 cursor-pointer font-bold text-slate-600 transition-colors">
-                                                {ind}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full h-16 rounded-3xl bg-slate-50 border-2 border-slate-100 px-6 font-bold text-center" placeholder="手機 09xx" />
-                                <input required type="text" value={taxId} onChange={(e) => setTaxId(e.target.value.replace(/\D/g, '').slice(0, 8))} className="w-full h-16 rounded-3xl bg-slate-50 border-2 border-slate-100 px-6 font-bold text-center" placeholder="統一編號" />
-                            </div>
-                            <button type="submit" disabled={!industry || !isPhoneValid || !isTaxIdValid} className="w-full bg-[#064E3B] text-[#34FF5B] h-16 rounded-3xl font-black text-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50">
-                                進入探索模式
-                            </button>
-                        </form>
-                    </MainContainer>
-                );
-            }
-
-            if (step === 2) {
-                return (
-                    <MainContainer className="max-w-2xl p-10 md:p-14">
-                        <BackButton onClick={() => setStep(1)} />
-                        <div className="text-center mb-10">
-                            <h2 className="text-3xl font-black text-slate-800">您是否有具體的減碳目標？</h2>
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <button onClick={() => setGoalMode('has_goal')} className={`p-8 rounded-[40px] border-2 transition-all text-left group ${goalMode === 'has_goal' ? 'border-[#34FF5B] bg-emerald-50' : 'border-slate-100 hover:border-slate-300'}`}>
-                                <div className="w-12 h-12 rounded-2xl bg-[#064E3B] text-white flex items-center justify-center mb-6 font-black text-2xl group-hover:scale-110 transition-transform">✓</div>
-                                <h3 className="font-black text-xl mb-2">我已有明確目標</h3>
-                                <p className="text-slate-400 text-sm font-medium">我們將依照目標缺口為您推薦最佳技術組合。</p>
-                            </button>
-                            <button onClick={handleNoGoal} className="p-8 rounded-[40px] border-2 border-slate-100 hover:border-slate-300 transition-all text-left group">
-                                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-400 flex items-center justify-center mb-6 font-black text-xl group-hover:rotate-12 transition-transform">？</div>
-                                <h3 className="font-black text-xl mb-2">暫無目標，先逛逛</h3>
-                                <p className="text-slate-400 text-sm font-medium">直接查看該產業的熱門改進系統與成功案例。</p>
-                            </button>
-                        </div>
-
-                        {goalMode === 'has_goal' && (
-                            <div className="mt-10 p-8 bg-slate-50 rounded-[40px] animate-in" style={{ animationDelay: '0ms' }}>
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 block">減量標的</label>
-                                        <div className="flex bg-white p-2 rounded-2xl border border-slate-200">
-                                            <button onClick={() => setGoalPath('carbon')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${goalPath === 'carbon' ? 'bg-[#064E3B] text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>碳排 (t)</button>
-                                            <button onClick={() => setGoalPath('energy')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${goalPath === 'energy' ? 'bg-[#064E3B] text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>能源 (kWh)</button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 block">目標類型</label>
-                                        <div className="flex bg-white p-2 rounded-2xl border border-slate-200">
-                                            <button onClick={() => setTargetType('percentage')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${targetType === 'percentage' ? 'bg-[#064E3B] text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>百分比</button>
-                                            <button onClick={() => setTargetType('absolute')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${targetType === 'absolute' ? 'bg-[#064E3B] text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>絕對值</button>
-                                        </div>
-                                    </div>
+                const RecommendationCard = ({ item, index, onOpen, isEnergy, targetValue }) => {
+                    const format = (v) => {
+                        const n = typeof v === 'string' ? parseFloat(v.replace(/,/g, '')) : v;
+                        return isNaN(n) ? "0" : Math.round(n).toLocaleString('en-US');
+                    };
+                    const val = isEnergy ? parseFloat(item["節能潛力"] || "0") * 1000 : parseFloat(item["碳減量(公噸/年)"] || "0");
+                    const gap = Math.max(0, targetValue - val);
+                    return (
+                        <div className="bg-white p-6 rounded-[32px] border border-slate-100 hover:border-[#34FF5B] hover:shadow-xl transition-all group flex flex-col md:flex-row justify-between items-center animate-in" style={{ animationDelay: `${index * 100}ms` }}>
+                            <div className="flex items-center gap-6 w-full md:w-auto mb-4 md:mb-0">
+                                <div className={`w-12 h-12 rounded-2xl font-black text-xl flex items-center justify-center transition-all ${index === 0 ? 'bg-[#34FF5B] text-[#064E3B]' : 'bg-slate-50 text-slate-300 group-hover:bg-[#34FF5B] group-hover:text-[#064E3B]'}`}>{index + 1}</div>
+                                <div>
+                                    <h4 className="font-black text-[#064E3B] text-xl mb-1">{item["系統名稱"]}</h4>
+                                    <div className="flex items-center gap-2"><p className="text-slate-400 font-bold text-sm tracking-tight">{item["措施類型"] || item["措施名稱"]}</p>{parseFloat(item["回收年限(年)"] || "99") < 3 && <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-md text-[8px] font-black uppercase">ROI &lt; 3Y</span>}</div>
                                 </div>
-                                <div className="mt-8 grid md:grid-cols-2 gap-8">
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 block">{goalPath === 'carbon' ? '目前年排碳量 (t)' : '目前年耗電量 (kWh)'}</label>
-                                        <input type="text" value={currentVal} onChange={(e) => setCurrentVal(e.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ","))} className="w-full h-16 rounded-3xl bg-white border border-slate-200 px-6 font-black text-2xl focus:border-[#34FF5B]" placeholder="0" />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 block">{targetType === 'percentage' ? '預計減量 %' : '預計減量標的'}</label>
-                                        <input type="text" value={targetVal} onChange={(e) => setTargetVal(e.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ","))} className="w-full h-16 rounded-3xl bg-white border border-slate-200 px-6 font-black text-2xl focus:border-[#34FF5B]" placeholder="0" />
-                                    </div>
+                            </div>
+                            <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end">
+                                <div className="text-right">
+                                    <p className="text-2xl font-black text-[#111827]">{format(val)}<span className="text-[10px] text-slate-400 ml-1">{isEnergy ? 'kWh' : 'tCO2e'}</span></p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{gap <= 0 ? <span className="text-emerald-500">✨ 已達成/超越目標 !</span> : <span>距離目標尚差 {formatValueOutput(gap)} {isEnergy ? 'kWh' : 't'}</span>}</p>
                                 </div>
-                                <button onClick={handleConfirmGoal} className="w-full mt-10 bg-[#064E3B] text-[#34FF5B] h-16 rounded-3xl font-black text-xl hover:scale-[1.02] transition-all">
-                                    展開策略地圖
+                                <button onClick={onOpen} className="bg-[#34FF5B] text-[#064E3B] px-6 py-3 rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-lg active:scale-95">詳情</button>
+                            </div>
+                        </div>
+                    );
+                };
+
+                const EmailModal = ({ onClose, onSubmit }) => {
+                    const [email, setEmail] = useState('');
+                    const [isValid, setIsValid] = useState(false);
+                    useEffect(() => { setIsValid(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)); }, [email]);
+                    return (
+                        <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center p-4" onClick={onClose}>
+                            <div className="bg-white rounded-[40px] max-w-md w-full p-10 animate-in no-print" onClick={e => e.stopPropagation()}>
+                                <h3 className="text-2xl font-black text-[#064E3B] mb-2 text-center">獲取專業報告</h3>
+                                <p className="text-slate-400 font-bold text-center mb-8">輸入正確 Email 以整合您的轉型分析</p>
+                                <div className="space-y-6">
+                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" className="w-full h-16 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-[#34FF5B] px-8 text-lg font-bold transition-all" />
+                                    <p className="text-[10px] text-slate-400 text-center font-bold tracking-tight">加入 Netellus 電子報，將為您定期更新資訊</p>
+                                    <button disabled={!isValid} onClick={() => onSubmit(email)} className="w-full bg-[#064E3B] text-[#34FF5B] h-16 rounded-3xl font-black text-xl hover:scale-105 transition-all disabled:opacity-50">確認獲取</button>
+                                    <button onClick={onClose} className="w-full text-slate-400 font-bold hover:text-slate-600 transition-colors">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                };
+
+                const OnboardingModal = ({ onStart }) => (
+                    <div className="fixed inset-0 z-[500] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in" onClick={onStart}>
+                        <div className="bg-white/90 backdrop-blur-md rounded-[40px] max-w-[500px] w-full p-8 md:p-10 border border-white/50 shadow-2xl relative overflow-hidden" onClick={e => e.stopPropagation()}>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#34FF5B]/20 rounded-full blur-[40px] -mr-16 -mt-16"></div>
+                            <div className="relative z-10">
+                                <h2 className="text-3xl font-black text-[#064E3B] mb-6 leading-tight text-center md:text-left">企業永續決策支援系統</h2>
+                                <div className="space-y-4 text-slate-600 font-medium leading-relaxed mb-8 text-base onboarding-text">
+                                    <p>當企業被要求減碳或節能時，最難的往往不是「要不要做」，而是 「第一步該從哪裡開始？」</p>
+                                    <p>這個工具，透過 真實市場數據，協助你快速回答三個問題：</p>
+                                    <ul className="space-y-2 list-disc pl-5 marker:text-[#34FF5B]">
+                                        <li>同產業的企業通常先採取哪些行動？</li>
+                                        <li>成效與成本大概落在哪個區間？</li>
+                                        <li>哪些方案是多數企業正在採用的選擇？</li>
+                                    </ul>
+                                    <p className="pt-4 border-t border-slate-200 mt-4 leading-relaxed">怎麼用？ 只要輸入產業別與目標，系統就會從 近 15,000 筆實際案例 中，整理出可參考的減碳成效、成本、回收年限與常見作法。讓永續決策，不再只憑感覺。</p>
+                                    <p className="border-t border-slate-200 pt-4 mt-4 leading-relaxed">希望這個小工具能對你有所幫助，也歡迎在使用後提供回饋，協助我們持續優化。</p>
+                                </div>
+                                <button onClick={onStart} className="w-full bg-[#064E3B] text-[#34FF5B] h-16 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-xl flex items-center justify-center gap-2 group">
+                                    開始使用
+                                    <span className="group-hover:translate-x-1 transition-transform">→</span>
                                 </button>
                             </div>
-                        )}
-                    </MainContainer>
-                );
-            }
-
-            return (
-                <MainContainer className="max-w-6xl">
-                    <div className="p-8 md:p-12">
-                        <div className="flex justify-between items-start mb-10">
-                            <BackButton onClick={() => {
-                                if (selectedMeasure) setSelectedMeasure(null);
-                                else if (selectedSystem) setSelectedSystem(null);
-                                else setStep(2);
-                            }} />
-                            <div className="text-right">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Industry View</p>
-                                <p className="font-black text-xl text-slate-800">{industry}</p>
-                            </div>
-                        </div>
-
-                        {recommendations && (
-                            <div className="grid lg:grid-cols-1 gap-12">
-                                <div className="lg:col-span-1">
-                                    {userGoal && (
-                                        <div className="mb-8">
-                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 inline-block ${recommendations?.type === 'portfolio' ? 'bg-blue-600 text-white' : 'bg-[#064E3B] text-white'}`}>
-                                                {recommendations?.type === 'portfolio' ? '組合策略建議 (Portfolio)' : '精選匹配案例 (Single Match)'}
-                                            </span>
-                                            <h1 className="text-3xl md:text-5xl font-black text-[#111827] mb-6 leading-tight">
-                                                {recommendations?.type === 'portfolio' ? '目標缺口顯著，建議採取複合措施' : '找到最符合您目標的節能改進方案'}
-                                            </h1>
-                                            <div className="p-8 bg-slate-900 rounded-[32px] text-white flex flex-col md:flex-row items-center justify-between shadow-2xl gap-8">
-                                                <div>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 text-[#34FF5B]">您的減量目標 (YOUR TARGET)</p>
-                                                    <p className="text-3xl md:text-5xl font-black text-white">
-                                                        {formatValue(userGoal.type === 'percentage' ? userGoal.currentValue * (userGoal.value / 100) : userGoal.value)}
-                                                        <span className="text-lg text-slate-400 ml-2">{userGoal.path === 'carbon' ? 't' : 'kWh'}</span>
-                                                    </p>
-                                                </div>
-                                                <div className="text-right border-l-0 md:border-l border-white/10 pl-0 md:pl-8 w-full md:w-auto">
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">AI 預估達成率</p>
-                                                    <p className="text-3xl md:text-5xl font-black">{recommendations?.type === 'portfolio' ? '95%+' : '100%+'}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {!userGoal && (
-                                        <div className="mb-8">
-                                            <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 inline-block bg-slate-100 text-slate-600">產業探索模式</span>
-                                            <h1 className="text-3xl md:text-5xl font-black text-[#111827] mb-6 leading-tight">
-                                                為您分析「{selectedSystem || '全系統'}」的改進趨勢
-                                            </h1>
-                                        </div>
-                                    )}
-
-                                    <div className="mt-8 p-8 bg-emerald-50 rounded-[32px] border border-emerald-100/50 relative">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-8 h-8 rounded-full bg-[#064E3B] text-white flex items-center justify-center font-black text-xs">AI</div>
-                                            <h3 className="font-black text-[#064E3B] text-sm uppercase tracking-widest">顧問分析報告</h3>
-                                        </div>
-                                        <p className="text-gray-700 italic font-medium">
-                                            {recommendations?.analysis || "正在進行深度分析中..."}
-                                        </p>
-                                    </div>
-
-                                    <div className="mt-12">
-                                        <h3 className="text-xl md:text-2xl font-black mb-8 text-[#111827] flex items-center gap-3">
-                                            <span className="w-2 h-8 bg-[#34FF5B] rounded-full"></span>
-                                            {userGoal ? '同業執行成效參考 (Median Analysis)' : '產業熱門轉型案例'}
-                                        </h3>
-                                        <div className="space-y-6">
-                                            {recommendations?.items?.length ? (
-                                                recommendations.items.map((row, idx) => (
-                                                    <RecommendationCard
-                                                        key={idx}
-                                                        item={row}
-                                                        index={idx}
-                                                        onOpen={() => setSelectedAction(row)}
-                                                        isEnergy={userGoal?.path === 'energy'}
-                                                        targetValue={userGoal?.type === 'percentage' ? userGoal.currentValue * (userGoal.value / 100) : userGoal.value || 0}
-                                                    />
-                                                ))
-                                            ) : (
-                                                <div className="text-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200 px-8">
-                                                    <p className="text-slate-400 font-black text-lg">暫無完全匹配的案例，請嘗試調整目標數值。</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="mt-20 pt-20 border-t border-slate-100" ref={analysisRef}>
-                            <div className="mb-12 text-center">
-                                <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 inline-block bg-slate-100 text-slate-600">Deep Dive Analysis</span>
-                                <h2 className="text-3xl md:text-4xl font-black text-[#111827]">同業節能與減碳競爭力分析</h2>
-                                <p className="text-slate-400 font-bold mt-2">點擊圓餅圖或指標卡片進行深層探索</p>
-                            </div>
-
-                            <div className="grid lg:grid-cols-2 gap-12 items-center mb-20 bg-slate-50 p-6 md:p-10 rounded-[48px]">
-                                <div className="h-80 relative">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={systemDistribution}
-                                                innerRadius={80} outerRadius={110} paddingAngle={8} dataKey="value" stroke="none"
-                                                onClick={(data) => {
-                                                    setSelectedSystem(data.name);
-                                                    setSelectedMeasure(null);
-                                                }}
-                                            >
-                                                {systemDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} className="hover:opacity-80 transition-opacity cursor-pointer" />)}
-                                            </Pie>
-                                            <Tooltip />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight">Main Systems</p>
-                                        <p className="text-xl font-black text-[#064E3B]">{systemDistribution.length}</p>
-                                    </div>
-                                </div>
-                                <div className="space-y-3">
-                                    {[...systemDistribution].sort((a, b) => b.value - a.value).map((item, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => { setSelectedSystem(item.name); setSelectedMeasure(null); }}
-                                            className={`w-full flex justify-between items-center p-5 rounded-3xl transition-all shadow-sm ${selectedSystem === item.name ? 'bg-[#064E3B] text-white scale-[1.02] shadow-xl' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
-                                        >
-                                            <span className="flex items-center gap-3 font-black text-sm text-left">
-                                                <div className="w-3 h-3 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }}></div>
-                                                {item.name}
-                                            </span>
-                                            <span className={`font-black text-sm shrink-0 ml-4 ${selectedSystem === item.name ? 'text-[#34FF5B]' : 'text-[#064E3B]'}`}>{formatValue(item.value)}%</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {selectedSystem && (
-                                <div className="animate-in mb-20">
-                                    <h3 className="text-xl font-black text-[#064E3B] mb-8 flex items-center gap-3">
-                                        <span className="w-1.5 h-6 bg-[#064E3B] rounded-full"></span>
-                                        {selectedSystem} - 常用改進措施佔比
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {getMeasuresForSystem(selectedSystem).map((m, idx) => (
-                                            <div
-                                                key={idx}
-                                                onClick={() => setSelectedMeasure(m.fullData)}
-                                                className={`cursor-pointer p-6 rounded-[32px] border-2 transition-all group ${selectedMeasure?.action === m.name
-                                                    ? 'border-[#34FF5B] bg-emerald-50 shadow-lg'
-                                                    : 'border-slate-100 hover:border-[#34FF5B] bg-white'
-                                                    }`}
-                                            >
-                                                <div className="flex justify-between items-start mb-4 gap-2">
-                                                    <span className="font-black text-lg text-[#064E3B] group-hover:text-[#10B981] transition-colors">{m.name}</span>
-                                                    <span className="text-[10px] font-black bg-[#064E3B] text-[#34FF5B] px-3 py-1 rounded-full uppercase tracking-widest shrink-0">
-                                                        {formatValue(m.rate * 100)}%
-                                                    </span>
-                                                </div>
-                                                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-2">
-                                                    <div className="bg-[#34FF5B] h-full transition-all duration-1000" style={{ width: `${m.rate * 100}%` }}></div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {selectedMeasure && selectedMeasure.stats && (
-                                <div className="animate-in bg-[#064E3B] p-8 md:p-14 rounded-[56px] text-white shadow-2xl relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#34FF5B]/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-                                    <h3 className="text-2xl font-black text-white mb-10 flex items-center gap-4 relative z-10">
-                                        <span className="text-[#34FF5B] text-3xl">📊</span>
-                                        {selectedSystem} › {selectedMeasure.action} : 同業中位數標竿
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 relative z-10">
-                                        {row1Metrics.map((metric, idx) => renderMetricCard(metric, idx))}
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                                        {row2Metrics.map((metric, idx) => renderMetricCard(metric, idx + 3))}
-                                    </div>
-                                    <button
-                                        onClick={() => handleRFQ({ system: selectedSystem, action: selectedMeasure.action })}
-                                        className="w-full mt-12 bg-[#34FF5B] text-[#064E3B] py-6 rounded-3xl font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl"
-                                    >
-                                        獲取完整轉型評估報告 <span>→</span>
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
+                );
 
-                    {selectedAction && (
-                        <DetailModal
-                            item={selectedAction}
-                            industry={industry}
-                            onClose={() => setSelectedAction(null)}
-                            onRFQ={() => handleRFQ(selectedAction)}
-                        />
-                    )}
-                </MainContainer>
-            );
-        };
+                const PrivacyPolicyModal = ({ onClose }) => (
+                    <div className="fixed inset-0 z-[1100] bg-black/80 flex items-center justify-center p-4" onClick={onClose}>
+                        <div className="bg-white rounded-[32px] max-w-2xl w-full max-h-[70vh] flex flex-col shadow-2xl animate-in relative privacy-modal-content" onClick={e => e.stopPropagation()}>
+                            <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 rounded-full border border-slate-100 flex items-center justify-center font-bold text-slate-400 hover:border-[#064E3B] hover:text-[#064E3B] transition-all bg-white">✕</button>
+                            <div className="p-8 border-b border-slate-100"><h2 className="text-2xl font-black text-[#064E3B]">隱私權政策</h2></div>
+                            <div className="p-8 overflow-y-auto leading-relaxed text-slate-600 space-y-6 text-sm">
+                                <p className="font-bold">最後更新時間：2025年11月27日</p>
+                                <p>零域科技有限公司及其以「Netellus」名義營運之網站、系統與相關服務（以下合稱或各稱「零域科技」、「Netellus」或「本公司」）重視您的個人資料與隱私。本隱私權政策（下稱「本政策」）說明本公司如何蒐集、處理、利用與揭露您的個人資料。</p>
+                                <p>本政策適用於由本公司提供或透過本公司提供之所有網站、行動應用程式及其他線上服務（以下合稱或各稱「平台」），包括但不限於永續服務媒合、詢價比價工具、數位減碳/永續工具與相關雲端服務。當您造訪或使用平台（例如註冊帳戶、瀏覽服務商頁面、提出或回覆詢價、使用減碳/永續工具等），即視為您已閱讀、了解並同意本政策全部內容；若您不同意本政策，請勿使用平台相關服務。 本公司目前主要針對中華民國（臺灣）境內企業與使用者提供服務，平台之設計與權利義務安排係以中華民國法令為基礎。</p>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">一、名詞定義</h4>
+                                <p>除本政策另有定義外，本政策所使用名詞與本公司使用條款及相關服務條款之定義相同。「平台」：指由 Netellus 提供或透過 Netellus 提供的所有網站、行動應用程式及其他線上服務。「企業用戶」：指於平台註冊或實際使用平台以發布永續需求、提出詢價、收受報價、管理專案等之法人或其代表、員工及聯絡人。「永續服務商」：指於平台上架服務、回覆詢價、提交報價、提供永續相關產品或服務之企業或專業服務人員。</p>
 
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">二、蒐集之個人資料</h4>
+                                <p>本公司蒐集與儲存之個人資料，會依您使用平台的情形而有所不同。本公司可能透過以下方式取得您的資料：由您直接提供、自關係企業、合作夥伴、社群網站及其他合法第三方來源取得、透過 Cookie、裝置資訊等技術被動或自動蒐集。</p>
+                                <p>（一）您直接提供的個人資料：當您註冊或維護平台帳戶、填寫企業或服務商資料、提出詢價、參加活動或與我們互動時，可能會提供基本識別資料（姓名、職稱等）、聯絡資料、帳號資料、專業資格資料（服務商）、交易與服務相關資料、影像與通訊內容、付款相關資料等。</p>
+                                <p>（二）來自關係企業、社群網站與其他來源的資料：包括關係企業、合作夥伴、社群網站（Google/Facebook/LinkedIn 等授權資料）、公開資訊及第三方數據服務商。</p>
+                                <p>（三）被動或自動蒐集之資料：包括裝置與使用資訊（IP、作業系統等，用於分析及改善體驗）、位置資料（粗略或精確定位，用於提供地區化服務）、Cookie 與其他類似技術（用於記住偏好、分析流量等）。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">三、所蒐集個人資料之類別（依個資法分類）</h4>
+                                <p>本公司於合法且必要範圍內，得蒐集、處理及利用下列類型之個人資料：C001 辨識個人者、C002 辨識財務者、C003 政府機關辨識者、C011 個人描述、C031 住家及設施、C034 旅行及其他遷徙細節、C036 生活格調、C038 職業、C039 執照或其他許可、C051 學校紀錄、C052 資格或技術、C054 職業專長、C057 學習或考試紀錄、C061 受僱情形、C081 收入、所得、資產與投資、C093 財務交易、C102 約定或契約、C103 與營業有關之執照、C132 未分類之其他資料。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">四、本公司如何使用您的個人資料</h4>
+                                <p>主要目的包括：提供服務（媒合、詢價、交易）、帳戶與身分管理、客服與用戶支援、交易與金流處理、平台營運與優化、防制詐欺與安全維護、行銷與商業溝通、統計研究與分析、爭議處理與權益保護。特定目的代碼包括 040 行銷、069 契約事務、090 客戶管理、157 調查統計等。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">五、個人資料處理與利用之期間、地區、對象及方式</h4>
+                                <p>期間：自您開始使用平台起至帳戶存續期間，或法令規定保存期間。地區：中華民國境內及本公司或雲端服務所在地區。對象：本公司及關係企業、交易相關之永續服務商或企業用戶、受託處理業務之第三方、依法有權機關。方式：以自動化或非自動化方式蒐集、處理、利用與國際傳輸。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">六、國際傳輸</h4>
+                                <p>本公司可能將您的資料傳輸至境外伺服器（雲端平台），並將依相關法令及合理安全標準處理您的資料。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">七、資料揭露對象及方式</h4>
+                                <p>本公司可能於以下情形揭露資料：向關係企業揭露以協助服務；向交易對象（服務商或企業）揭露必要聯絡資訊；向受託之第三方服務供應商（金流、雲端、行銷等）揭露；應法律或政府機關要求；公司重組或交易時；公開資訊與使用者內容（如評價、留言）。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">八、線上分析及客製化廣告</h4>
+                                <p>本公司可能使用第三方分析服務（如 Google Analytics）及技術蒐集資訊，並可能對您顯示客製化廣告。您可依服務提供者說明調整偏好。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">九、未成年人的隱私</h4>
+                                <p>本公司服務對象為企業及專業人士，不以未滿 18 歲之未成年人為對象。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">十、資訊安全</h4>
+                                <p>本公司採取合理技術與組織安全措施保護資料（如權限控管、加密），但無法保證百之百安全，請妥善保管帳號密碼。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">十一、外部網站連結</h4>
+                                <p>平台可能包含第三方網站連結，其隱私權政策與本公司不同，建議您點擊後詳閱該等網站政策。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">十二、您的權利與行使方式</h4>
+                                <p>您得行使查詢、閱覽、製給複製本、補充更正、停止蒐集處理利用或刪除等權利。請透過客服信箱 justin@netellus.com 聯繫。若帳戶刪除，可能無法再存取特定紀錄。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">十三、未提供個人資料之影響</h4>
+                                <p>若拒絕提供必要資料，可能造成無法註冊、無法使用特定功能或接收資訊等影響。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">十四、本政策之修訂</h4>
+                                <p>本公司得隨時修訂本政策，重大變更將公告或通知。建議您定期檢視。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">十五、準據法與管轄法院</h4>
+                                <p>以中華民國法律為準據法。爭議以臺灣臺北地方法院為第一審管轄法院。</p>
+
+                                <h4 className="font-bold text-[#064E3B] text-lg mt-4">十六、聯絡我們</h4>
+                                <p>若有問題請聯繫 justin@netellus.com。通訊地址以平台公告為準。</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+                const CustomerServiceFAB = () => (
+                    <div className="fixed bottom-8 right-8 z-[1000] group no-print mobile-fab">
+                        <a href="https://www.facebook.com/groups/twsustainabilityguide" target="_blank" rel="noopener noreferrer" className="w-[55px] h-[55px] bg-white/60 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform hover:shadow-xl relative overflow-hidden">
+                            <svg className="w-6 h-6 text-[#064E3B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                        </a>
+                        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-4 bg-white text-slate-800 text-xs font-bold px-4 py-2 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-slate-100">
+                            如有任何問題或建議歡迎隨時與我們交流
+                            <div className="absolute top-1/2 left-full -translate-y-1/2 -ml-1 border-8 border-transparent border-l-white"></div>
+                        </div>
+                    </div>
+                );
+
+                const IntegratedReport = ({ recommendations, userGoal, industry, systemDistribution, selectedMeasure, onDownload, onBack }) => {
+                    const items = recommendations?.items || [];
+                    const quickWin = items.reduce((p, c) => (parseFloat(c["回收年限(年)"] || 99) < parseFloat(p["回收年限(年)"] || 99)) ? c : p, items[0] || {});
+                    const hi = items.reduce((p, c) => (parseFloat(c["碳減量(公噸/年)"] || 0) > parseFloat(p["碳減量(公噸/年)"] || 0)) ? c : p, items[0] || {});
+                    const achievementRate = useMemo(() => {
+                        if (!userGoal || !items.length) return 0;
+                        const target = userGoal.type === 'percentage' ? (userGoal.currentValue * (userGoal.value / 100)) : userGoal.value;
+                        if (target === 0) return 100;
+                        const topVal = userGoal.path === 'energy' ? parseFloat(items[0]["節能潛力"] || 0) * 1000 : parseFloat(items[0]["碳減量(公噸/年)"] || 0);
+                        return Math.min(100, Math.round((topVal / target) * 1000) / 10);
+                    }, [userGoal, items]);
+                    const targetValue = userGoal ? (userGoal.type === 'percentage' ? (userGoal.currentValue * (userGoal.value / 100)) : userGoal.value) : 0;
+                    const rate = Math.min(100, Math.round(((parseFloat(quickWin["碳減量(公噸/年)"] || 0) + parseFloat(hi["碳減量(公噸/年)"] || 0)) / (targetValue || 1)) * 100));
+
+                    return (
+                        <div className="p-8 max-w-6xl mx-auto animate-in text-slate-900 font-sans">
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 no-print mb-8">
+                                <BackButton onClick={onBack} />
+                                <button onClick={onDownload} className="bg-[#064E3B] text-[#34FF5B] px-8 py-4 rounded-full font-black text-lg shadow-xl hover:scale-105 transition-all flex items-center gap-2">
+                                    下載 PDF 報告 ↓
+                                </button>
+                            </div>
+
+                            <div className="text-center mb-6">
+                                <img src="https://lh3.googleusercontent.com/d/1FZ2LiztZzL1zhwYaKgU8873Qn5j8ZF1y" style={{ height: '85px', width: 'auto' }} alt="Logo" className="mx-auto mb-4" />
+                                <h1 className="text-4xl font-black text-[#064E3B] mb-2">企業永續轉型整合報告</h1>
+                                <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-sm">{industry} - 戰略分析方案</p>
+                            </div>
+
+                            {userGoal && (
+                                <div className="grid lg:grid-cols-2 gap-6 mb-6 integrated-report-grid">
+                                    <div className="space-y-6 flex flex-col integrated-report-card">
+                                        <h2 className="text-2xl font-black text-[#064E3B] flex items-center gap-3">
+                                            <span className="w-1.5 h-8 bg-[#064E3B] rounded-full"></span>
+                                            策略結論報告
+                                        </h2>
+
+                                        <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm mb-6">
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">您的減量目標</p>
+                                                    <p className="text-3xl font-black text-[#064E3B]">{formatValueOutput(targetValue)} <span className="text-sm text-slate-400 font-bold">{userGoal.path === 'carbon' ? 't' : 'kWh'}</span></p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">AI 預估達成率</p>
+                                                    <p className="text-3xl font-black text-emerald-500">{achievementRate}%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden flex-1 overflow-y-auto max-h-[600px] custom-scrollbar">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <span className="w-8 h-8 rounded-full bg-[#34FF5B] text-[#064E3B] flex items-center justify-center font-black text-xs">AI</span>
+                                                <h3 className="text-lg font-black uppercase tracking-widest text-[#064E3B]">Strategic Advisor</h3>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                <div>
+                                                    <h4 className="font-bold text-slate-900 mb-3 text-sm">最佳推薦方案 (Top 3 Recommendations)</h4>
+                                                    <div className="space-y-4">
+                                                        {items.slice(0, 3).map((item, idx) => (
+                                                            <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-100 group hover:border-[#34FF5B] transition-all">
+                                                                <div className="flex justify-between items-center mb-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="w-5 h-5 rounded-full bg-[#064E3B] text-[#34FF5B] flex items-center justify-center font-black text-[10px]">{idx + 1}</span>
+                                                                        <p className="font-bold text-sm text-slate-900 truncate">{item["系統名稱"]}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <span className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-md text-[10px] font-black">減碳 {formatValueOutput(item["碳減量(公噸/年)"])} t</span>
+                                                                    <span className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-md text-[10px] font-black">節能 {formatValueOutput(parseFloat(item["節能潛力"] || 0) * 1000)} kWh</span>
+                                                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-[10px] font-black">回收 {formatValueOutput(item["回收年限(年)"])} 年</span>
+                                                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-[10px] font-black">投資 {formatDec(item["企業投資成本(萬元)"])} 萬</span>
+                                                                    <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-md text-[10px] font-black">年省 {formatDec(item["年節省成本(萬元)"])} 萬</span>
+                                                                    <span className="px-2 py-1 bg-slate-200 text-slate-700 rounded-md text-[10px] font-black">單價 {formatDec(item["單位減碳成本"] || item["單位減碳成本中位數"])} 元/t</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="pt-4 border-t border-slate-100">
+                                                    <p className="text-xs text-slate-500 font-bold leading-relaxed">
+                                                        核心建議：優先啟動 <span className="text-[#064E3B] underline decoration-2 underline-offset-2">{items[0]?.["系統名稱"]}</span> 專案，預計覆蓋缺口 {rate}%。
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6 flex flex-col integrated-report-card">
+                                        <h2 className="text-2xl font-black text-[#064E3B] flex items-center gap-3">
+                                            <span className="w-1.5 h-8 bg-[#064E3B] rounded-full"></span>
+                                            同業系統分析總表
+                                        </h2>
+
+                                        <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm print:h-auto print:block flex-1 flex flex-col">
+                                            <div className="flex flex-col md:flex-row items-center gap-4 flex-1 print:block print:h-auto">
+                                                <div className="w-full md:w-1/2 relative h-64 md:h-full min-h-[300px] print:w-full print:h-64 print:mb-4">
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <PieChart>
+                                                            <Pie data={systemDistribution} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
+                                                                {systemDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                                                            </Pie>
+                                                            <Tooltip />
+                                                        </PieChart>
+                                                    </ResponsiveContainer>
+                                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase text-center">Systems</p>
+                                                        <p className="text-2xl font-black text-[#064E3B] text-center">{systemDistribution.length}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full md:w-1/2 overflow-visible space-y-2 print:w-full print:h-auto">
+                                                    {systemDistribution.map((item, i) => (
+                                                        <div key={i} className="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 print:border-slate-200">
+                                                            <div className="flex items-center gap-2 overflow-hidden">
+                                                                <div className="w-2 h-2 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }}></div>
+                                                                <span className="font-bold text-xs text-slate-700 truncate">{item.name}</span>
+                                                            </div>
+                                                            <span className="font-black text-xs text-[#064E3B] w-12 text-right">{item.value}%</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedMeasure && (
+                                <div className="mt-8 space-y-6">
+                                    <h2 className="text-2xl font-black text-[#064E3B] flex items-center gap-3">
+                                        <span className="w-1.5 h-8 bg-[#064E3B] rounded-full"></span>
+                                        {selectedMeasure.action} 同業中位數標竿
+                                    </h2>
+                                    <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                            {[
+                                                { label: "碳減量", en: "CARBON RED.", key: "c_碳減量中位數", unit: "t/yr" },
+                                                { label: "節能潛力", en: "ENERGY SAV.", key: "c_節能潛力中位數", unit: "kWh", multiplier: 1000 },
+                                                { label: "回收年限", en: "PAYBACK", key: "c_回收年限中位數", unit: "年" },
+                                                { label: "投資成本", en: "COST", key: "c_投資成本中位數", unit: "萬元" },
+                                                { label: "年節省", en: "SAVINGS", key: "年節省成本中位數", unit: "萬元/年" },
+                                                { label: "單位成本", en: "UNIT COST", key: "單位減碳成本中位數", unit: "元/噸" }
+                                            ].map((m, i) => {
+                                                let val = Number(selectedMeasure.stats?.[m.key]) || 0; if (m.multiplier) val *= m.multiplier;
+                                                return (
+                                                    <div key={i} className="text-center p-4 rounded-2xl bg-white border border-slate-100">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{m.label} <span className="opacity-50">{m.en}</span></p>
+                                                        <p className="text-2xl font-black text-[#064E3B]">{formatValueOutput(val)} <span className="text-xs text-slate-400 font-bold ml-0.5">{m.unit}</span></p>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+
+                            <div className="text-center pt-6 border-t border-slate-100 opacity-30 no-print mt-6">
+                                <p className="font-bold text-slate-400">© 2026 Netellus. All rights reserved.</p>
+                            </div>
+                        </div>
+                    );
+                };
+
+                const AdvisorReport = ({ recommendations, userGoal, industry }) => {
+                    if (!recommendations?.items?.length) return null;
+                    const items = recommendations.items;
+                    const quickWin = items.reduce((p, c) => (parseFloat(c["回收年限(年)"] || 99) < parseFloat(p["回收年限(年)"] || 99)) ? c : p);
+                    const hi = items.reduce((p, c) => (parseFloat(c["碳減量(公噸/年)"] || 0) > parseFloat(p["碳減量(公噸/年)"] || 0)) ? c : p);
+                    const targetValue = userGoal.type === 'percentage' ? (userGoal.currentValue * (userGoal.value / 100)) : userGoal.value;
+                    const rate = Math.min(100, Math.round(((parseFloat(quickWin["碳減量(公噸/年)"] || 0) + parseFloat(hi["碳減量(公噸/年)"] || 0)) / (targetValue || 1)) * 100));
+                    return (
+                        <div className="mt-10 p-8 bg-emerald-900 rounded-[40px] text-white shadow-2xl relative overflow-hidden animate-in">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#34FF5B]/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                            <div className="flex items-center gap-4 mb-8"><div className="w-10 h-10 rounded-full bg-[#34FF5B] text-[#064E3B] flex items-center justify-center font-black text-sm shadow-lg">AI</div><h3 className="text-xl font-black uppercase tracking-[0.2em] text-[#34FF5B]">Strategic Advisor Report</h3></div>
+                            <div className="space-y-10 relative z-10">
+                                <div><h4 className="text-2xl font-black mb-4 flex items-center gap-3"><span className="w-2 h-6 bg-[#34FF5B] rounded-full"></span>動態組合策略 (Dynamic Portfolio Strategy)</h4>
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="bg-white/5 p-6 rounded-3xl border border-white/10"><h5 className="text-[#34FF5B] font-black text-xs uppercase tracking-widest mb-3">短期效益優先 (Quick Win)</h5><p className="font-bold text-lg mb-1">{quickWin["系統名稱"]}</p><p className="text-sm text-white/50">回收僅 {formatValueOutput(quickWin["回收年限(年)"])} 年 / 投資 {formatDec(quickWin["企業投資成本(萬元)"])} 萬。</p></div>
+                                        <div className="bg-white/5 p-6 rounded-3xl border border-white/10"><h5 className="text-[#34FF5B] font-black text-xs uppercase tracking-widest mb-3">高影響力支柱 (High Impact)</h5><p className="font-bold text-lg mb-1">{hi["系統名稱"]}</p><p className="text-sm text-white/50">減碳 {formatValueOutput(hi["碳減量(公噸/年)"])} t / 年省 {formatDec(hi["年節省成本(萬元)"])} 萬。</p></div>
+                                    </div><p className="mt-6 text-white/70 font-medium leading-relaxed italic border-l-4 border-[#34FF5B] pl-6">「此組合策略預計能覆蓋您目標缺口的 {rate}%。」</p></div>
+                                <div><h4 className="text-2xl font-black mb-4 flex items-center gap-3"><span className="w-2 h-6 bg-[#34FF5B] rounded-full"></span>風險規避與顧問建議 (Risk Mitigation)</h4><ul className="space-y-4">{items.slice(0, 2).map((it, i) => (<li key={i} className="flex gap-4"><div className="mt-1.5 w-2 h-2 rounded-full bg-[#34FF5B] shrink-0"></div><div><p className="font-bold text-white mb-1">針對 {it["系統名稱"]}，{industry} 同業常見挑戰：</p><p className="text-sm text-white/50 italic mb-2">"{it["企業問題闡述"] || "目前數據整合度不足，判斷難度較高。"}"</p><p className="text-sm text-[#34FF5B] font-bold">→ 策略解法：{it["解決方案闡述"] || "建議優先建立能耗基準線，並透過自動化手段優化終端負載。"}</p></div></li>))}</ul></div>
+                                <div className="pt-8 border-t border-white/10 flex items-center justify-between"><div><h4 className="text-2xl font-black mb-2">核心建議 (What's Next)</h4><p className="text-sm text-white/50 leading-relaxed font-bold">建議立即優先啟動 <span className="text-[#34FF5B] underline underline-offset-4">{items[0]["系統名稱"]}</span> 之優化工程。</p></div><span className="bg-[#34FF5B] text-[#064E3B] px-4 py-1.5 rounded-xl text-xs font-black uppercase shadow-lg shadow-[#34FF5B]/20">Priority One</span></div>
+                            </div>
+                        </div>
+                    );
+                };
+
+                const DetailModal = ({ item, industry, onClose, onRFQ }) => {
+                    if (!item) return null;
+                    const format = (v) => { const n = typeof v === 'string' ? parseFloat(v.replace(/,/g, '')) : v; return isNaN(n) ? "0" : Math.round(n).toLocaleString('en-US'); };
+                    return (
+                        <div className="fixed inset-0 z-[400] bg-black/80 flex items-center justify-center p-4" onClick={onClose}><div className="bg-white rounded-[40px] max-w-2xl w-full p-10 animate-in overflow-y-auto max-h-[90vh] no-print" onClick={e => e.stopPropagation()}><div className="flex justify-between items-start mb-10"><div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{item["措施類型"]}</p><h3 className="text-3xl font-black text-[#064E3B]">{item["系統名稱"]}</h3></div><button onClick={onClose} className="w-12 h-12 rounded-full border border-slate-100 flex items-center justify-center font-bold text-slate-400 hover:border-[#064E3B] hover:text-[#064E3B] transition-all">✕</button></div><div className="space-y-10"><div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100"><h4 className="font-black text-xs uppercase tracking-widest mb-6 text-[#064E3B]">關鍵效益指標 (Key Metrics)</h4><div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                            <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">預計減碳</p><p className="text-2xl font-black text-[#111827]">{formatValueOutput(item["碳減量(公噸/年)"])} <span className="text-xs text-slate-400 font-bold ml-1">t/yr</span></p></div>
+                            <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">節能潛力</p><p className="text-2xl font-black text-[#111827]">{formatValueOutput(parseFloat(item["節能潛力"] || 0) * 1000)} <span className="text-xs text-slate-400 font-bold ml-1">kWh</span></p></div>
+                            <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">回收年限</p><p className="text-2xl font-black text-[#111827]">{formatValueOutput(item["回收年限(年)"])} <span className="text-xs text-slate-400 font-bold ml-1">年</span></p></div>
+                            <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">預估投資</p>
+                                <p className="text-2xl font-black text-[#111827] relative group inline-block">
+                                    {formatDec(item["企業投資成本(萬元)"])}
+                                    {Number(item["企業投資成本(萬元)"]) === 0 && (
+                                        <span className="cost-asterisk">*</span>
+                                    )}
+                                    {Number(item["企業投資成本(萬元)"]) === 0 && (
+                                        <div className="custom-tooltip bg-white border border-slate-100 text-slate-600 text-left font-medium">
+                                            投資成本為 0，代表僅需透過微調設施設定與運作合理性，即可實現節能減碳效益。
+                                            <div className="tooltip-arrow border-t-white"></div>
+                                        </div>
+                                    )}
+                                    <span className="text-xs text-slate-400 font-bold ml-1">萬元</span>
+                                </p>
+                            </div>
+                            <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">年節省成本</p><p className="text-2xl font-black text-[#111827]">{formatDec(item["年節省成本(萬元)"])} <span className="text-xs text-slate-400 font-bold ml-1">萬元/年</span></p></div>
+                            <div><p className="text-[10px] font-bold text-slate-400 uppercase mb-1">單位減碳成本</p><p className="text-2xl font-black text-[#111827]">{formatDec(item["單位減碳成本(元/噸)"] || item["單位減碳成本"])} <span className="text-xs text-slate-400 font-bold ml-1">元/噸</span></p></div>
+                        </div></div><div className="space-y-6"><div><h4 className="font-black text-xs uppercase tracking-widest mb-4 text-[#064E3B]">同業挑戰分析 ({industry})</h4><div className="p-8 bg-orange-50 rounded-3xl border border-orange-100"><p className="text-sm font-bold text-slate-700 leading-relaxed italic">"{item["企業問題闡述"] || "目前數據整合度不足，判斷難度較高。"}"</p></div></div><div><h4 className="font-black text-xs uppercase tracking-widest mb-4 text-[#064E3B]">專家解法建議</h4><div className="p-8 bg-emerald-50 rounded-3xl border border-emerald-100 text-emerald-900"><p className="text-sm font-bold leading-relaxed">"{item["解決方案闡述"] || "建議優先建立能耗基準線，並透過自動化手段優化終端負載。"}"</p></div></div></div>
+                            <div className="space-y-4">
+                                <button onClick={onRFQ} className="w-full bg-[#064E3B] text-[#34FF5B] h-20 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3">獲得詳細報價與工程方案 <span>→</span></button>
+                            </div>
+                        </div></div></div>
+                    );
+                };
+
+                const App = () => {
+                    const [docId, setDocId] = useState(generateDocId);
+                    const [step, setStep] = useState(STEP_INITIAL);
+                    const [industry, setIndustry] = useState('');
+                    const [phone, setPhone] = useState('');
+                    const [taxId, setTaxId] = useState('');
+                    const [industrySearch, setIndustrySearch] = useState('');
+                    const [showSuggestions, setShowSuggestions] = useState(false);
+                    const [showEmailModal, setShowEmailModal] = useState(false);
+                    const [showPrivacy, setShowPrivacy] = useState(false);
+                    const suggestionRef = useRef(null);
+                    const [showOnboarding, setShowOnboarding] = useState(true);
+                    const [targetVal, setTargetVal] = useState('');
+                    const [userGoal, setUserGoal] = useState(null);
+                    const [recommendations, setRecommendations] = useState(null);
+                    const [currentVal, setCurrentVal] = useState("");
+                    const [goalMode, setGoalMode] = useState("unset");
+                    const [goalPath, setGoalPath] = useState("carbon");
+                    const [targetType, setTargetType] = useState("percentage");
+                    const [dashboardStats, setDashboardStats] = useState(null);
+                    const [systemDistribution, setSystemDistribution] = useState([]);
+                    const [selectedSystem, setSelectedSystem] = useState(null);
+                    const [selectedMeasure, setSelectedMeasure] = useState(null);
+                    const [selectedAction, setSelectedAction] = useState(null);
+                    const [showDeepDive, setShowDeepDive] = useState(false);
+                    const [isLoading, setIsLoading] = useState(false);
+                    const isPhoneValid = phone.startsWith('09') && phone.length === 10;
+                    const isTaxIdValid = taxId.length === 8;
+                    const achievementRate = useMemo(() => {
+                        if (!userGoal || !recommendations?.items?.length) return 0;
+                        const target = userGoal.type === 'percentage' ? (userGoal.currentValue * (userGoal.value / 100)) : userGoal.value;
+                        if (target === 0) return 100;
+                        const topVal = userGoal.path === 'energy' ? parseFloat(recommendations.items[0]["節能潛力"] || 0) * 1000 : parseFloat(recommendations.items[0]["碳減量(公噸/年)"] || 0);
+                        return Math.min(100, Math.round((topVal / target) * 1000) / 10);
+                    }, [userGoal, recommendations]);
+                    const filteredSuggestions = useMemo(() => { const s = industrySearch.toLowerCase().trim(); if (!s) return INDUSTRIES.slice(0, 5); return INDUSTRIES.filter(i => i.toLowerCase().includes(s)).slice(0, 10); }, [industrySearch]);
+                    useEffect(() => { const click = (e) => { if (suggestionRef.current && !suggestionRef.current.contains(e.target)) setShowSuggestions(false); }; document.addEventListener("mousedown", click); return () => document.removeEventListener("mousedown", click); }, []);
+                    const handleHomeNav = () => { setDocId(generateDocId()); setStep(STEP_INITIAL); setIndustry(''); setIndustrySearch(''); setPhone(''); setTaxId(''); setUserGoal(null); setRecommendations(null); setGoalMode('unset'); setTargetVal(''); setCurrentVal(''); setShowDeepDive(false); setShowEmailModal(false); };
+                    const handleProfileSubmit = (e) => { e.preventDefault(); if (industry && isPhoneValid && isTaxIdValid) { setStep(STEP_GOAL_SETTING); dataService.saveUserProfile({ actionType: 'set', docId, industry, phone, taxId, createdAt: new Date().toISOString() }).catch(console.error); } };
+                    const handleConfirmGoal = async () => {
+                        setIsLoading(true); const rv = parseFloat(targetVal) || 0; const cv = parseFloat(currentVal) || 0; const g = { path: goalPath, type: targetType, value: rv, currentValue: cv }; setUserGoal(g); setShowDeepDive(false); const absoluteGoal = (targetType === 'percentage') ? (cv * (rv / 100)) : rv;
+                        try { dataService.saveUserProfile({ actionType: 'update', docId, baseline_total: String(cv.toFixed(2)), reduction_target: String(rv), baseline_unit: goalPath === 'carbon' ? 't' : 'kWh', reduction_type: targetType === 'percentage' ? '%' : (goalPath === 'carbon' ? 't' : 'kWh'), lastUpdated: new Date().toISOString() }).catch(console.error); const [rec, stat] = await Promise.all([dataService.fetchRecommendations(industry, absoluteGoal, goalPath), dataService.fetchDashboardStats({ industry })]); setRecommendations(rec); setDashboardStats(stat); if (stat.rawDocs) { const map = {}; stat.rawDocs.forEach(d => { if (d.system && !map[d.system]) map[d.system] = d.stats?.['a_系統佔比(同產業)'] || 0; }); setSystemDistribution(Object.keys(map).map(sys => ({ name: sys, value: Math.round(map[sys] * 1000) / 10 }))); } setGoalMode('has_goal'); setStep(STEP_DASHBOARD); } catch (err) { console.error(err); } finally { setIsLoading(false); }
+                    };
+                    const handleEmailSubmit = (email) => { setShowEmailModal(false); setIsLoading(true); dataService.saveUserProfile({ actionType: 'update', docId, email, lastUpdated: new Date().toISOString() }).then(() => setStep(STEP_FULL_REPORT)).finally(() => setIsLoading(false)); };
+                    const handleRFQ = (row) => { const u = new URLSearchParams({ industry, system: row["系統名稱"] || selectedSystem || '', action: row["措施名稱"] || row["措施類型"] || selectedMeasure?.action || '', target: userGoal ? `${userGoal.value}${userGoal.type === 'percentage' ? '%' : (userGoal.path === 'carbon' ? 't' : 'kWh')}` : 'none' }); window.location.href = `https://rfq.netellus.com/rfq/create?${u.toString()}`; };
+                    const row1Metrics = [{ label: "碳減量 (Carbon Red.)", key: "c_碳減量中位數", unit: "t/yr" }, { label: "節能潛力 (Energy Sav.)", key: "c_節能潛力中位數", unit: "kWh", multiplier: 1000 }, { label: "回收年限 (Payback)", key: "c_回收年限中位數", unit: "年" }];
+                    const row2Metrics = [{ label: "投資成本 (Cost)", key: "c_投資成本中位數", unit: "萬元" }, { label: "年節省 (Savings)", key: "年節省成本中位數", unit: "萬元/年" }, { label: "單位成本 (Unit Cost)", key: "單位減碳成本中位數", unit: "元/噸" }];
+                    const getMeasures = (sys) => dashboardStats?.rawDocs?.filter(d => d.system === sys).map(d => ({ name: d.action, rate: d.stats?.['b_措施佔比(同產業×系統)'] || 0, fullData: d })).sort((a, b) => b.rate - a.rate) || [];
+                    const renderMetricCard = (m, idx) => { if (!selectedMeasure?.stats) return null; let val = Number(selectedMeasure.stats[m.key]) || 0; if (m.multiplier) val *= m.multiplier; return (<div key={idx} className="bg-white/5 p-8 rounded-[32px] border border-white/10 text-center min-h-[160px] flex flex-col justify-center relative group"><p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{m.label}</p><p className="text-3xl font-black text-[#34FF5B]">{formatValueOutput(val)}{m.label === "投資成本 (Cost)" && val === 0 && <span className="cost-asterisk">*</span>} <span className="text-xs text-white/30 font-bold ml-1">{m.unit}</span></p>{m.label === "投資成本 (Cost)" && val === 0 && <div className="custom-tooltip bg-slate-900 border border-white/10 text-white text-left font-medium">投資成本為 0，代表僅需透過微調設施設定與運作合理性，即可實現節能減碳效益。<div className="tooltip-arrow border-t-slate-900"></div></div>}</div>); };
+                    if (isLoading && step !== STEP_DASHBOARD && step !== STEP_FULL_REPORT) { return <MainContainer className="max-w-md text-center py-20"><div className="w-16 h-16 border-4 border-[#064E3B] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div><p className="text-[#064E3B] font-bold tracking-widest uppercase animate-pulse">Processing...</p></MainContainer>; }
+                    if (step === STEP_FULL_REPORT) { return <div className="relative"><div onClick={handleHomeNav} className="no-print" style={{ cursor: 'pointer', position: 'fixed', top: '10px', left: '15px', zIndex: 9999 }}><img src="https://lh3.googleusercontent.com/d/1FZ2LiztZzL1zhwYaKgU8873Qn5j8ZF1y" style={{ height: '85px' }} alt="Logo" /></div><MainContainer className="max-w-5xl"><IntegratedReport recommendations={recommendations} userGoal={userGoal} industry={industry} systemDistribution={systemDistribution} selectedMeasure={selectedMeasure} onDownload={() => window.print()} onBack={() => setStep(STEP_DASHBOARD)} /></MainContainer></div>; }
+                    return (
+                        <div className="relative">
+                            <CustomerServiceFAB />
+                            {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
+                            {showOnboarding && <OnboardingModal onStart={() => setShowOnboarding(false)} />}
+                            <div className="fixed bottom-2 left-0 right-0 text-center z-[50] no-print pointer-events-none">
+                                <p className="text-[12px] text-slate-400 font-bold pointer-events-auto inline-block text-shadow-sm">
+                                    Powered by Netellus I <button onClick={() => setShowPrivacy(true)} className="hover:text-[#064E3B] transition-colors">隱私權政策</button>
+                                </p>
+                            </div>
+                            <div onClick={handleHomeNav} style={{ cursor: 'pointer', position: 'fixed', top: '10px', left: '15px', zIndex: 9999 }}><img src="https://lh3.googleusercontent.com/d/1FZ2LiztZzL1zhwYaKgU8873Qn5j8ZF1y" style={{ height: '85px' }} alt="Logo" /></div>
+                            <MainContainer className={step === STEP_INITIAL ? "max-w-lg p-10" : step === STEP_GOAL_SETTING ? "max-w-2xl p-10" : "max-w-5xl"}>
+                                {step === STEP_INITIAL && (<>
+                                    <div className="text-center mb-12"><h1 className="text-3xl font-black mb-2">企業減碳決策系統</h1><p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Netellus Intelligence Hub</p></div>
+                                    <form onSubmit={handleProfileSubmit} className="space-y-8">
+                                        <div className="relative" ref={suggestionRef}><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 block text-center">產業類別</label><input required type="text" value={industrySearch} onChange={(e) => { setIndustrySearch(e.target.value); setIndustry(e.target.value); setShowSuggestions(true); }} placeholder="搜尋產業..." className="w-full h-16 rounded-3xl bg-white border-2 border-slate-100 px-8 text-xl font-bold" />{showSuggestions && <div className="absolute z-50 top-full left-0 right-0 bg-white rounded-3xl border shadow-2xl overflow-hidden">{filteredSuggestions.map((ind, i) => <div key={i} onMouseDown={() => { setIndustry(ind); setIndustrySearch(ind); setShowSuggestions(false); }} className="px-8 py-4 hover:bg-emerald-50 cursor-pointer font-bold transition-colors">{ind}</div>)}</div>}</div>
+                                        <div className="grid grid-cols-2 gap-4"><input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full h-16 rounded-3xl bg-white border-2 border-slate-100 px-6 font-bold text-center text-xl" placeholder="手機 09xx" /><input required type="text" value={taxId} onChange={(e) => setTaxId(e.target.value.replace(/\D/g, '').slice(0, 8))} className="w-full h-16 rounded-3xl bg-white border-2 border-slate-100 px-6 font-bold text-center text-xl" placeholder="統一編號" /></div>
+                                        <button type="submit" disabled={!industry || !isPhoneValid || !isTaxIdValid} className="w-full bg-[#064E3B] text-[#34FF5B] h-16 rounded-3xl font-black text-xl hover:scale-105 transition-all disabled:opacity-50">進入探索模式</button>
+                                    </form>
+                                </>)}
+                                {step === STEP_GOAL_SETTING && (<>
+                                    <BackButton onClick={() => setStep(STEP_INITIAL)} /><div className="text-center mb-10"><h2 className="text-3xl font-black text-slate-800">您是否有具體的減碳目標？</h2></div>
+                                    <div className="grid md:grid-cols-2 gap-6"><button onClick={() => setGoalMode('has_goal')} className={`p-8 rounded-[40px] border-2 text-left ${goalMode === 'has_goal' ? 'border-[#34FF5B] bg-emerald-50' : 'bg-white'}`}><div className="w-12 h-12 rounded-2xl bg-[#064E3B] text-white flex items-center justify-center mb-6 font-black text-2xl">✓</div><h3 className="font-black text-xl">我已有明確目標</h3></button><button onClick={async () => { setIsLoading(true); try { const stat = await dataService.fetchDashboardStats({ industry }); setDashboardStats(stat); if (stat.rawDocs) { const map = {}; stat.rawDocs.forEach(d => { if (d.system && !map[d.system]) map[d.system] = d.stats?.['a_系統佔比(同產業)'] || 0; }); setSystemDistribution(Object.keys(map).map(sys => ({ name: sys, value: Math.round(map[sys] * 1000) / 10 }))); } setGoalMode('no_goal'); setShowDeepDive(true); setStep(STEP_DASHBOARD); } catch (e) { console.error(e); } finally { setIsLoading(false); } }} className="p-8 rounded-[40px] border-2 bg-white text-left"><div className="w-12 h-12 rounded-2xl bg-white border text-slate-400 flex items-center justify-center mb-6 font-black text-xl">？</div><h3 className="font-black text-xl">暫無目標，先逛逛</h3></button></div>
+                                    {goalMode === 'has_goal' && (
+                                        <div className="mt-10 p-8 bg-slate-50/50 rounded-[40px] animate-in"><div className="grid md:grid-cols-2 gap-8">
+                                            <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-3">減量標的</label><div className="flex bg-white p-2 rounded-2xl border"><button onClick={() => setGoalPath('carbon')} className={`flex-1 py-3 rounded-xl font-bold ${goalPath === 'carbon' ? 'bg-[#064E3B] text-white' : 'text-slate-400'}`}>碳排 (t)</button><button onClick={() => setGoalPath('energy')} className={`flex-1 py-3 rounded-xl font-bold ${goalPath === 'energy' ? 'bg-[#064E3B] text-white' : 'text-slate-400'}`}>能源 (kWh)</button></div></div>
+                                            <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-3">目標類型</label><div className="flex bg-white p-2 rounded-2xl border"><button onClick={() => setTargetType('percentage')} className={`flex-1 py-3 rounded-xl font-bold ${targetType === 'percentage' ? 'bg-[#064E3B] text-white' : 'text-slate-400'}`}>百分比</button><button onClick={() => setTargetType('absolute')} className={`flex-1 py-3 rounded-xl font-bold ${targetType === 'absolute' ? 'bg-[#064E3B] text-white' : 'text-slate-400'}`}>絕對值</button></div></div>
+                                        </div>
+                                            <div className="mt-8 grid md:grid-cols-2 gap-8">
+                                                <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-3">{goalPath === 'carbon' ? '目前年排碳量 (T)' : '目前年用電量 (kWh)'}</label><input type="text" value={formatComma(currentVal)} onChange={(e) => { const r = stripComma(e.target.value); if (/^\d*\.?\d*$/.test(r)) setCurrentVal(r); }} className="w-full h-16 rounded-3xl bg-white border px-6 font-black text-2xl" placeholder="0" /></div>
+                                                <div><label className="text-[10px] font-black uppercase text-slate-400 block mb-3">{targetType === 'percentage' ? '預計減量 %' : '預計減量'}</label><input type="text" value={formatComma(targetVal)} onChange={(e) => { const r = stripComma(e.target.value); if (/^\d*\.?\d*$/.test(r)) setTargetVal(r); }} className="w-full h-16 rounded-3xl bg-white border px-6 font-black text-2xl" placeholder="0" /></div>
+                                            </div><button onClick={handleConfirmGoal} className="w-full mt-10 bg-[#064E3B] text-[#34FF5B] h-16 rounded-3xl font-black text-xl hover:scale-105">展開策略地圖</button></div>
+                                    )}
+                                </>)}
+                                {step === STEP_DASHBOARD && (
+                                    <div className="p-8 md:p-12">
+                                        <div className="flex justify-between items-center mb-10"><BackButton onClick={() => { if (selectedMeasure) setSelectedMeasure(null); else if (selectedSystem) setSelectedSystem(null); else if (showDeepDive && goalMode === 'has_goal') setShowDeepDive(false); else setStep(STEP_GOAL_SETTING); }} /><div className="text-right"><p className="text-[10px] font-black text-slate-400">Industry View</p><p className="font-black text-xl text-slate-800">{industry}</p></div></div>
+                                        {recommendations && goalMode === 'has_goal' && !showDeepDive && (<div className="animate-in"><div className="mb-8"><h1 className="text-3xl md:text-5xl font-black mb-6 leading-tight">{recommendations?.type === 'portfolio' ? '建議採取複合措施以達成目標' : '找到最符合您目標的方案'}</h1><div className="p-8 bg-slate-900 rounded-[32px] text-white flex justify-between items-center shadow-2xl"><div><p className="text-[10px] font-bold text-[#34FF5B] mb-2">您的減量目標</p><p className="text-3xl md:text-5xl font-black">{formatValueOutput((userGoal.type === 'percentage') ? (userGoal.currentValue * (userGoal.value / 100)) : userGoal.value)} <span className="text-lg text-slate-400">{userGoal.path === 'carbon' ? 't' : 'kWh'}</span></p></div><div className="text-right"><p className="text-[10px] font-bold text-slate-400 mb-2">AI 達成率</p><p className="text-3xl md:text-5xl font-black">{achievementRate}%</p></div></div></div><AdvisorReport recommendations={recommendations} userGoal={userGoal} industry={industry} /><div className="mt-12"><h3 className="text-xl font-black mb-8">同業執行成效參考</h3><div className="space-y-6">{recommendations?.items?.map((row, idx) => <RecommendationCard key={idx} item={row} index={idx} onOpen={() => setSelectedAction(row)} isEnergy={userGoal?.path === 'energy'} targetValue={(userGoal?.type === 'percentage') ? (userGoal.currentValue * (userGoal.value / 100)) : (userGoal?.value || 0)} />)}</div><div className="mt-16 text-center"><button onClick={() => setShowDeepDive(true)} className="bg-[#064E3B] text-[#34FF5B] px-12 py-6 rounded-3xl font-black text-xl hover:scale-105 shadow-2xl">探索更多同業行動 →</button></div></div></div>)}
+                                        {(goalMode === 'no_goal' || showDeepDive) && (<div className="mt-8 animate-in"><div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-black text-[#064E3B] mb-3">同業節能與減碳競爭力分析</h2><p className="text-slate-400 font-bold text-sm">點擊圓餅圖或指標卡片進行深層探索</p></div><div className="mb-20 grid lg:grid-cols-2 gap-12 items-center bg-white p-10 rounded-[48px] shadow-sm"><div className="h-80 relative"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={systemDistribution} innerRadius={80} outerRadius={110} paddingAngle={8} dataKey="value" stroke="none" onClick={(d) => { setSelectedSystem(d.name); setSelectedMeasure(null); }}>{systemDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} className="hover:opacity-80 cursor-pointer" />)}</Pie><Tooltip /></PieChart></ResponsiveContainer><div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><p className="text-[10px] font-black text-slate-400">Main Systems</p><p className="text-xl font-black text-[#064E3B]">{systemDistribution.length}</p></div></div><div className="space-y-3">{systemDistribution.sort((a, b) => b.value - a.value).map((item, i) => <button key={i} onClick={() => { setSelectedSystem(item.name); setSelectedMeasure(null); }} className={`w-full flex justify-between p-5 rounded-3xl pill-border ${selectedSystem === item.name ? 'bg-[#064E3B] text-white' : 'bg-white'}`}><span className="flex items-center gap-3 font-black text-sm"><div className="w-3 h-3 rounded-full" style={{ background: COLORS[i % COLORS.length] }}></div>{item.name}</span><span className="font-black text-sm">{item.value}%</span></button>)}</div></div>
+                                            {selectedSystem && (<div className="mb-20 animate-in"><div className="mb-8"><h3 className="text-2xl md:text-3xl font-black text-[#064E3B] mb-2">{selectedSystem} - 常用措施佔比</h3><p className="text-slate-400 font-bold text-sm">點擊卡片探索關鍵數據</p></div><div className="grid md:grid-cols-3 gap-6">{getMeasures(selectedSystem).map((m, idx) => <div key={idx} onClick={() => setSelectedMeasure(m.fullData)} className={`cursor-pointer p-6 rounded-[32px] border-2 transition-all ${selectedMeasure?.action === m.name ? 'border-[#34FF5B] bg-emerald-50 shadow-lg' : 'bg-white hover:border-[#34FF5B]'}`}><div className="flex justify-between items-start mb-4"><span className="font-black text-lg text-[#064E3B]">{m.name}</span><span className="text-[10px] font-black bg-[#064E3B] text-[#34FF5B] px-3 py-1 rounded-full">{formatValueOutput(m.rate * 100)}%</span></div><div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div className="bg-[#34FF5B] h-full" style={{ width: `${m.rate * 100}%` }}></div></div></div>)}</div></div>)}
+                                            {selectedMeasure && (<div className="animate-in bg-[#064E3B] p-10 rounded-[56px] text-white shadow-2xl relative overflow-hidden"><h3 className="text-2xl font-black mb-10">{selectedMeasure.action} : 同業中位數標竿</h3><div className="grid md:grid-cols-3 gap-6 mb-6">{row1Metrics.map((m, i) => renderMetricCard(m, i))}</div><div className="grid md:grid-cols-3 gap-6">{row2Metrics.map((m, i) => renderMetricCard(m, i + 3))}</div>
+                                                <div className="space-y-4">
+                                                    <button onClick={() => setShowEmailModal(true)} className="w-full mt-12 bg-[#34FF5B] text-[#064E3B] py-6 rounded-3xl font-black text-lg hover:scale-105 shadow-xl h-16 flex items-center justify-center">獲取完整轉型評估報告</button>
+                                                </div>
+                                            </div>)}</div>)}
+                                    </div>
+                                )}
+                                {showEmailModal && <EmailModal onClose={() => setShowEmailModal(false)} onSubmit={handleEmailSubmit} />}
+                                {selectedAction && <DetailModal item={selectedAction} industry={industry} onClose={() => setSelectedAction(null)} onRFQ={() => handleRFQ(selectedAction)} />}
+                            </MainContainer>
+                        </div>
+                    );
+                };
+                ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+            })();
     </script>
 </body>
 
